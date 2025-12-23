@@ -619,7 +619,7 @@ window.addEventListener("load", loadRecentActivity);
 
 
   function getInitials(name) {
-    if (!name) return "JD";
+    if (!name) return "JV";
     const parts = name.split(" ").filter(p => p.length);
     return parts.length === 1
       ? parts[0][0].toUpperCase()
@@ -627,7 +627,7 @@ window.addEventListener("load", loadRecentActivity);
   }
 
   function loadSidebarProfile() {
-    const savedName = localStorage.getItem("cg_fullname") || "John Doe";
+    const savedName = localStorage.getItem("cg_fullname") || "Jatin Vaishnav";
     const savedInitials =
       localStorage.getItem("cg_initials") || getInitials(savedName);
 
@@ -679,3 +679,4 @@ window.addEventListener("load", loadRecentActivity);
 </body>
 
 </html>
+
