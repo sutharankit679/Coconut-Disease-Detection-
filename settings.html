@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Settings | CoconutGuard AI</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            /* 🎨 THEME */
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #ECFDF5;
+            
+            --danger: #EF4444;
+            --danger-bg: #FEF2F2;
+            
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            
+            --text-head: #1E293B;
+            --text-body: #64748B;
+            --border: #E2E8F0;
+
+            /* Shadows & Spacing */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --radius-xl: 20px;
+            --radius-lg: 12px;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-head);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ------------------------------------------------
+           1. SIDEBAR (Responsive Drawer)
+        ------------------------------------------------ */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            display: flex; flex-direction: column;
+            padding: 32px 24px;
+            border-right: 1px solid var(--border);
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .brand {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 48px;
+            color: var(--primary-dark);
+        }
+        .brand-icon { 
+            width: 40px; height: 40px; background: var(--primary-light); 
+            color: var(--primary); border-radius: 12px; 
+            display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
+        }
+        .brand-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+
+        .nav-menu { list-style: none; flex: 1; overflow-y: auto; }
+        .nav-item { margin-bottom: 8px; }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px;
+            color: var(--text-body);
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600; font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover { background: var(--bg-body); color: var(--text-head); }
+        .nav-link.active { 
+            background: #ECFDF5; color: var(--primary-dark); 
+        }
+        .nav-link.active i { color: var(--primary); font-weight: bold; }
+
+        .user-profile {
+            background: var(--bg-body);
+            padding: 12px; border-radius: var(--radius-lg);
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer; margin-top: auto;
+        }
+        .avatar {
+            width: 36px; height: 36px; background: #D1FAE5; color: var(--primary-dark);
+            border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+        /* ------------------------------------------------
+           2. MAIN CONTENT
+        ------------------------------------------------ */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 32px 40px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        
+        .mobile-toggle { 
+            display: none; background: none; border: none; font-size: 28px; 
+            color: var(--text-head); cursor: pointer; padding: 4px;
+        }
+
+        .greeting h1 { font-size: 26px; font-weight: 800; color: var(--text-head); letter-spacing: -0.5px; line-height: 1.2; }
+        .greeting p { color: var(--text-body); font-size: 15px; margin-top: 4px; }
+
+        /* ------------------------------------------------
+           3. SETTINGS GRID LAYOUT
+        ------------------------------------------------ */
+        .settings-container {
+            max-width: 1100px; margin: 0 auto;
+            display: grid; 
+            grid-template-columns: 1fr 1fr; /* Desktop: 2 cols */
+            gap: 24px; 
+            padding-bottom: 60px;
+        }
+
+        /* Full Width Card */
+        .card-full { grid-column: span 2; }
+
+        /* CARD STYLE */
+        .card {
+            background: var(--bg-card); border-radius: var(--radius-xl); padding: 32px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+            height: 100%; display: flex; flex-direction: column;
+        }
+
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #F1F5F9;
+        }
+        .sh-title { display: flex; align-items: center; gap: 12px; }
+        .sh-icon { color: var(--primary); font-size: 22px; background: #ECFDF5; padding: 8px; border-radius: 8px; }
+        .sh-text h2 { font-size: 16px; font-weight: 700; color: var(--text-head); margin-bottom: 2px; }
+        .sh-text p { font-size: 13px; color: var(--text-body); line-height: 1.4; }
+
+        /* 1. PROFILE SECTION */
+        .profile-layout {
+            display: flex; gap: 32px; align-items: flex-start;
+        }
+        .profile-pic-box {
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .profile-pic {
+            width: 100px; height: 100px; background: #F1F5F9; color: var(--text-head);
+            border-radius: 50%; display: grid; place-items: center; font-size: 36px; font-weight: 800;
+            border: 4px solid white; box-shadow: var(--shadow-sm);
+        }
+        .change-photo {
+            font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer;
+        }
+
+        .profile-form { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .input-group label {
+            display: block; font-size: 12px; font-weight: 600; color: var(--text-body);
+            text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;
+        }
+        .input-text {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+            background: #FAFAFA; font-size: 14px; color: var(--text-head); font-weight: 500;
+            outline: none; transition: 0.2s; font-family: inherit;
+        }
+        .input-text:disabled { color: var(--text-body); background: #F8FAFC; cursor: default; }
+        .input-text:focus { border-color: var(--primary); background: white; }
+
+        /* Action Buttons */
+        .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; display: flex; align-items: center; gap: 6px; }
+        .btn-link { display: flex; align-items: center; justify-content: space-between;
+            padding: 16px; border: 1px solid var(--border); border-radius: 12px;
+            margin-bottom: 12px; cursor: pointer; transition: 0.2s; background: #F9FAFB;  }
+        .btn-link:hover { background: white; border-color: var(--primary); }
+        .btn-primary {display: none; align-items: center; justify-content: space-between;
+            padding: 16px; border: 1px solid var(--border); border-radius: 12px;
+            margin-bottom: 12px; cursor: pointer; transition: 0.2s; background: #F9FAFB;   }
+        .btn-primary:hover { background: white; border-color: var(--primary); border: 1px solid var(--border); }
+
+        /* 2. SETTING ROWS */
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 0; border-bottom: 1px solid #F8FAFC;
+        }
+        .setting-row:last-child { border: none; padding-bottom: 0; }
+
+        .row-info { padding-right: 16px; }
+        .row-info h4 { font-size: 14px; font-weight: 600; color: var(--text-head); margin-bottom: 4px; }
+        .row-info p { font-size: 13px; color: var(--text-body); font-weight: 400; max-width: 300px; line-height: 1.4; }
+
+        /* Controls */
+        .soft-select {
+            padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: #FFFFFF; color: var(--text-head); font-size: 13px; font-weight: 600;
+            outline: none; cursor: pointer; transition: 0.2s; min-width: 120px;
+        }
+        .soft-select:hover { border-color: var(--primary); }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #E2E8F0; transition: .3s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* 3. HELP LINKS */
+        .help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .help-link {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px; border: 1px solid var(--border); border-radius: 12px;
+            cursor: pointer; transition: 0.2s; background: #F9FAFB;
+        }
+        .help-link:hover { background: white; border-color: var(--primary); }
+        .hl-content { display: flex; align-items: center; gap: 12px; }
+        .hl-icon { color: var(--primary); font-size: 20px; flex-shrink: 0; }
+        .hl-text { font-size: 14px; font-weight: 600; color: var(--text-head); }
+
+        /* 4. DANGER ZONE */
+        .danger-box {
+            border: 1px solid #FECACA; background: #FEF2F2; padding: 24px; border-radius: var(--radius-xl);
+            margin-top: auto; 
+        }
+        .danger-header { color: #991B1B; font-weight: 700; margin-bottom: 8px; font-size: 15px; }
+        .danger-text { color: #7F1D1D; font-size: 13px; margin-bottom: 20px; }
+        
+        .danger-actions { display: flex; gap: 12px; }
+
+        .btn-danger {
+            padding: 10px 20px; background: white; border: 1px solid #FECACA; color: #DC2626;
+            border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-danger:hover { background: #FEE2E2; }
+
+        /* ------------------------------------------------
+           4. RESPONSIVE MEDIA QUERIES (CRITICAL)
+        ------------------------------------------------ */
+        
+        /* Tablet & Mobile (<= 1024px) */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed; top: 0; left: 0; height: 100%; width: 280px;
+                transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            .sidebar.active { transform: translateX(0); }
+            
+            .main-content { padding: 24px; }
+            
+            /* Stack Grid */
+            .settings-container { grid-template-columns: 1fr; }
+            .card-full { grid-column: span 1; }
+            
+            /* Profile Reflow */
+            .profile-layout { flex-direction: column; align-items: center; text-align: center; }
+            .profile-form { grid-template-columns: 1fr; width: 100%; }
+        }
+
+        /* Mobile Phone (<= 768px) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .main-content { padding: 20px 16px; overflow: visible; }
+            
+            /* Header */
+            .header { margin-bottom: 24px; }
+            .mobile-toggle { display: block; margin-right: 12px; }
+            .greeting h1 { font-size: 22px; margin-top: 4px; }
+            
+         
+
+            /* Card Adjustments */
+            .card { padding: 20px; }
+            
+            /* Setting Rows Stack */
+            .setting-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .soft-select { width: 100%; }
+            .switch { align-self: flex-start; }
+            
+            /* Help Grid Stack */
+            .help-grid { grid-template-columns: 1fr; }
+            
+            /* Danger Buttons Stack */
+            .danger-actions { flex-direction: column; }
+            .btn-danger { width: 100%; justify-content: center; }
+            
+            /* Section Header */
+            .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .sh-actions { align-self: flex-start; }
+        }
+
+
+        /* -------------------------------
+   SUCCESS TOAST
+--------------------------------*/
+.toast-success {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    font-size: 14px;
+    z-index: 9999;
+
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: all 0.35s ease;
+}
+
+.toast-success.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.toast-success i {
+    font-size: 22px;
+    color: #10B981;
+}
+
+/* -------------------------------
+   CONFIRM MODAL
+--------------------------------*/
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.confirm-overlay.show {
+  display: flex;
+}
+
+.confirm-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  width: 92%;
+  max-width: 380px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  animation: scaleIn 0.25s ease;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.confirm-box h3 {
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.confirm-box p {
+  font-size: 14px;
+  color: #4B5563;
+  margin-bottom: 18px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-secondary {
+  padding: 10px 18px;
+  background: #F1F5F9;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="ph-fill ph-plant"></i></div>
+            <span class="brand-text">CoconutGuard</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="ph ph-squares-four"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="scan.html" class="nav-link"><i class="ph ph-scan"></i> New Analysis</a></li>
+            <li class="nav-item"><a href="reports.html" class="nav-link"><i class="ph ph-chart-line-up"></i> Reports</a></li>
+            <li class="nav-item"><a href="library.html" class="nav-link"><i class="ph ph-book-bookmark"></i> Library</a></li>
+            <li class="nav-item"><a href="#" class="nav-link active"><i class="ph ph-gear"></i> Settings</a></li>
+        </ul>
+        <div class="user-profile" id="sidebarProfile" onclick="goToProfile()">
+    <div class="avatar" id="sidebarAvatar">JD</div>
+    <div style="flex:1;">
+        <div id="sidebarName" style="font-size:14px; font-weight:700;">
+            John Doe
+        </div>
+        <div style="font-size:12px; color:var(--text-body);">
+            Premium User
+        </div>
+    </div>
+</div>
+
+
+    </aside>
+
+    <main class="main-content">
+        
+        <header class="header">
+            <div class="header-left" style="display:flex; align-items:center;">
+                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="ph ph-list"></i></button>
+                <div id="headerTitle">
+                    <h1 class="greeting">Settings</h1>
+                    <p>Manage your account and application preferences.</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="settings-container">
+            
+            <div class="card card-full" id="profile">
+                <div class="section-header">
+                    <div class="sh-title">
+                        <i class="ph-bold ph-user-circle sh-icon"></i>
+                        <div class="sh-text">
+                            <h2>Profile Information</h2>
+                            <p>Update your photo and personal details.</p>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="profile-layout">
+                    <div class="profile-pic-box">
+                       <div class="profile-pic" id="profileAvatar">JD</div>
+                        
+                    </div>
+                    <div class="profile-form">
+                        <div class="input-group">
+                            <label>Full Name</label>
+                            <input type="text" class="input-text" id="inpName" value="Jatin Vaishnav" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>Phone Number</label>
+                            <input type="text" class="input-text" id="inpPhone" value="+91 98765 43210" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>Location</label>
+                            <input type="text" class="input-text" id="inpLoc" value="Bengaluru , Karnataka " disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>Role</label>
+                            <input type="text" class="input-text" value="Administrator" disabled style="color:var(--primary); background:#F0FDF4; border-color:#DCFCE7;">
+                        </div>
+
+                        <div class="sh-actions" style="display:flex; gap:10px;">
+                        <button class="btn-link" id="editBtn" onclick="toggleEdit()">Edit</button>
+                        <button class="btn-primary" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+                    </div>
+                    <!-- Success Toast -->
+<div id="toast" class="toast-success">
+    <i class="ph-bold ph-check-circle"></i>
+    <div>
+        <strong>Profile updated successfully</strong>
+        <div style="font-size:12px; opacity:0.9;">Your changes have been saved.</div>
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <div class="sh-title">
+                        <i class="ph-bold ph-sliders-horizontal sh-icon"></i>
+                        <div class="sh-text">
+                            <h2>System & Privacy</h2>
+                            <p>Configure interface and data handling.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-row">
+                    <div class="row-info">
+                        <h4>Interface Language</h4>
+                    </div>
+                    <select class="soft-select">
+                        <option>English</option>
+                        <option>Hindi</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <div class="row-info">
+                        <h4>GPS Geotagging</h4>
+                        <p>Attach location coordinates to reports</p>
+                    </div>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="row-info">
+                        <h4>Local Storage</h4>
+                        <p>Save scan history securely on this device</p>
+                    </div>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="row-info">
+                        <h4>Share Analytics</h4>
+                        <p>Help improve CoconutGuard AI accuracy</p>
+                    </div>
+                    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <div class="sh-title">
+                        <i class="ph-bold ph-bell sh-icon"></i>
+                        <div class="sh-text">
+                            <h2>Notifications</h2>
+                            <p>Manage alerts and sound preferences.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-row">
+                    <div class="row-info">
+                        <h4>High Risk Alerts</h4>
+                        <p>Receive immediate alerts for severe disease detection</p>
+                    </div>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="row-info">
+                        <h4>Scan Completion Sound</h4>
+                        <p>Play a sound when AI analysis finishes</p>
+                    </div>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+
+                <div class="danger-box" style="margin-top:auto; margin-top:24px;">
+                    <div class="danger-header">Data Actions</div>
+                    <div class="danger-text">
+                        Irreversible actions. Clearing history will remove all locally stored reports.
+                    </div>
+                    <div class="danger-actions">
+                        <button class="btn-danger"  onclick="confirmClearHistory()">Clear All Scan History</button>
+                        <button class="btn-danger"  onclick="confirmLogout()">Log Out</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-full">
+                <div class="section-header">
+                    <div class="sh-title">
+                        <i class="ph-bold ph-lifebuoy sh-icon"></i>
+                        <div class="sh-text">
+                            <h2>Help & Support</h2>
+                            <p>Resources and system information.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-grid">
+                    <div class="help-link" onclick="window.location.href='about.html'">
+                        <div class="hl-content">
+                            <i class="ph-duotone ph-info hl-icon"></i>
+                            <span class="hl-text">About CoconutGuard AI</span>
+                        </div>
+                        <i class="ph-bold ph-caret-right"></i>
+                    </div>
+                    
+                    <div class="help-link" onclick="window.location.href='contact.html'">
+                        <div class="hl-content">
+                            <i class="ph-duotone ph-chats-circle hl-icon"></i>
+                            <span class="hl-text">Contact Customer Support</span>
+                        </div>
+                        <i class="ph-bold ph-caret-right"></i>
+                    </div>
+                </div>
+
+                <div style="margin-top:20px; font-size:12px; color:var(--text-body); text-align: center;">
+                    App Version: <strong>1.0.4 (Enterprise)</strong>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+     <!-- Confirmation Modal -->
+<div id="confirmModal" class="confirm-overlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Confirm Action</h3>
+    <p id="confirmMessage">
+      Are you sure you want to proceed?
+    </p>
+
+    <div class="confirm-actions">
+      <button class="btn-secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-danger" id="confirmBtn">Yes, Continue</button>
+    </div>
+  </div>
+</div>
+
+    
+    <script>
+        // --- SIDEBAR ---
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('sidebar').contains(e.target) && !document.querySelector('.mobile-toggle').contains(e.target)) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
+            }
+        });
+
+        
+
+       
+  
+  function toggleEdit() {
+  document.querySelectorAll('.input-text').forEach(i => i.disabled = false);
+  document.getElementById('editBtn').style.display = 'none';
+  document.getElementById('saveBtn').style.display = 'inline-flex';
+  document.getElementById('inpName').focus();
+}
+
+
+  function saveProfile() {
+  const name = document.getElementById('inpName').value.trim();
+  const initials = getInitials(name);
+
+  // Update UI
+  document.getElementById('profileAvatar').innerText = initials;
+  document.getElementById('sidebarAvatar').innerText = initials;
+  document.getElementById('sidebarName').innerText = name;
+
+  // Save data
+  localStorage.setItem('cg_fullname', name);
+  localStorage.setItem('cg_initials', initials);
+
+  // Disable inputs
+  document.querySelectorAll('.input-text').forEach(i => i.disabled = true);
+  document.getElementById('saveBtn').style.display = 'none';
+  document.getElementById('editBtn').style.display = 'inline-flex';
+
+  // Show toast
+  showToast("Profile updated successfully", "Your changes have been saved.");
+}
+
+
+function showToast(title, message) {
+  const toast = document.getElementById("toast");
+  toast.querySelector("strong").innerText = title;
+  toast.querySelector("div div").innerText = message;
+
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
+
+
+
+  function getInitials(name) {
+    if (!name) return "--";
+    const parts = name.split(" ").filter(p => p.length);
+    return parts.length === 1
+      ? parts[0][0].toUpperCase()
+      : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  // Load saved profile on page load
+  window.addEventListener("load", () => {
+    const savedName = localStorage.getItem('cg_fullname');
+    const savedInitials = localStorage.getItem('cg_initials');
+
+    if (savedName) {
+      document.getElementById('inpName').value = savedName;
+      document.getElementById('sidebarName').innerText = savedName;
+    }
+    if (savedInitials) {
+      document.getElementById('profileAvatar').innerText = savedInitials;
+      document.getElementById('sidebarAvatar').innerText = savedInitials;
+    }
+  });
+
+  function goToProfile() {
+  window.location.href = "settings.html#profile";
+}
+
+
+let pendingAction = null;
+
+function openConfirm(title, message, action) {
+  document.getElementById("confirmTitle").innerText = title;
+  document.getElementById("confirmMessage").innerText = message;
+  document.getElementById("confirmModal").classList.add("show");
+
+  pendingAction = action;
+}
+
+function closeConfirm() {
+  document.getElementById("confirmModal").classList.remove("show");
+  pendingAction = null;
+}
+
+function confirmLogout() {
+  openConfirm(
+    "Log Out",
+    "You will be signed out from this device. You can log in again anytime.",
+    logout
+  );
+}
+
+// ACTION TRIGGERS
+function confirmClearHistory() {
+  openConfirm(
+    "Clear Scan History",
+    "This will permanently delete all locally stored scan reports. This action cannot be undone.",
+    clearHistory
+  );
+}
+
+function confirmLogout() {
+  openConfirm(
+    "Log Out",
+    "You will be signed out from this device. You can log in again anytime.",
+    logout
+  );
+}
+
+function logout() {
+  localStorage.clear();
+  showToast("Logged out successfully", "See you again soon!");
+
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 1500);
+}
+
+// CONFIRM BUTTON
+document.getElementById("confirmBtn").onclick = () => {
+  if (pendingAction) pendingAction();
+  closeConfirm();
+};
+
+// ACTUAL ACTIONS
+function clearHistory() {
+  localStorage.removeItem("scanHistory");
+  showToast("Scan history cleared", "All local reports have been removed.");
+}
+
+function logout() {
+  localStorage.clear();
+  showToast("Logged out successfully", "See you again soon!");
+
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 1500);
+}
+
+
+      
+    </script>
+
+</body>
+</html>

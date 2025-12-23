@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Research | CoconutGuard AI</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            /* 🎨 THEME */
+            --primary: #10B981;
+            --primary-dark: #065F46;
+            --primary-light: #ECFDF5;
+            
+            --accent-blue: #3B82F6;
+            --accent-orange: #F97316;
+            --accent-red: #EF4444;
+            
+            --bg-body: #F3F5F7;
+            --bg-card: #FFFFFF;
+            
+            --text-head: #1F2937;
+            --text-body: #6B7280;
+            --border-light: #E5E7EB;
+
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            --radius-xl: 20px;
+            --radius-lg: 12px;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-head);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ------------------------------------------------
+           SIDEBAR
+        ------------------------------------------------ */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            display: flex; flex-direction: column;
+            padding: 32px 24px;
+            border-right: 1px solid rgba(0,0,0,0.03);
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 48px;
+            color: var(--primary-dark);
+        }
+        .brand-icon { 
+            width: 40px; height: 40px; background: var(--primary-light); 
+            color: var(--primary); border-radius: 12px; 
+            display: grid; place-items: center; font-size: 24px;
+        }
+        .brand-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+
+        .nav-menu { list-style: none; flex: 1; }
+        .nav-item { margin-bottom: 8px; }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px;
+            color: var(--text-body);
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600; font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover { background: var(--bg-body); color: var(--text-head); }
+        .nav-link.active { 
+            background: #ECFDF5; color: var(--primary-dark); 
+        }
+        .nav-link.active i { color: var(--primary); weight: bold; }
+
+        .user-profile {
+            background: var(--bg-body);
+            padding: 12px; border-radius: var(--radius-lg);
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 36px; height: 36px; background: #D1FAE5; color: var(--primary-dark);
+            border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px;
+        }
+        /* ------------------------------------------------
+           MAIN CONTENT
+        ------------------------------------------------ */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 40px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .greeting h1 { font-size: 26px; font-weight: 800; color: var(--text-head); letter-spacing: -0.5px; }
+        .greeting p { color: var(--text-body); font-size: 15px; margin-top: 4px; }
+
+        .btn-action {
+            padding: 10px 20px; border-radius: 100px;
+            font-size: 13px; font-weight: 700; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-card); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-outline { background: white; border: 1px solid var(--border-light); color: var(--text-head); }
+        .btn-outline:hover { background: var(--bg-body); }
+
+        /* ------------------------------------------------
+           VIEW 1: LIST
+        ------------------------------------------------ */
+        #historyView { display: block; animation: fadeIn 0.4s ease; }
+
+        .filter-bar { display: flex; gap: 16px; margin-bottom: 24px; }
+        .search-box {
+            flex: 1; background: white; border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+        }
+        .search-box input { border: none; outline: none; width: 100%; font-family: inherit; font-size: 14px; }
+
+        /* Responsive Grid: Changed minmax from 320px to 280px for smaller phones */
+        .report-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-top: 24px;
+        }
+
+        .report-card {
+            background: white; border-radius: var(--radius-xl); padding: 20px;
+            box-shadow: var(--shadow-card); border: 1px solid transparent; cursor: pointer;
+            transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        .report-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-float); border-color: var(--primary-light); }
+
+        .rc-img {
+            width: 100%; height: 180px; object-fit: cover; border-radius: 12px;
+            background: #F3F4F6; margin-bottom: 16px;
+        }
+        .rc-status {
+            position: absolute; top: 32px; right: 32px;
+            padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            background: white; box-shadow: var(--shadow-card);
+        }
+        
+        .rc-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text-head); }
+        .rc-info p { font-size: 12px; color: var(--text-body); }
+
+        /* ------------------------------------------------
+           VIEW 2: RESEARCH DETAIL
+        ------------------------------------------------ */
+        #detailView { display: none; animation: fadeIn 0.4s ease; }
+
+        .research-layout {
+            display: grid; grid-template-columns: 380px 1fr; gap: 32px;
+        }
+
+        /* LEFT: Evidence Panel */
+        .evidence-card {
+            background: white; padding: 24px; border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-card); height: fit-content;
+        }
+        .evidence-title { font-size: 14px; font-weight: 700; color: var(--text-body); text-transform: uppercase; margin-bottom: 20px; }
+        
+        .scan-img-large {
+            width: 100%; height: auto; border-radius: 16px; object-fit: cover;
+            border: 1px solid var(--border-light); display: block;
+        }
+
+        .heatmap-container { position: relative; width: 100%; height: auto; border-radius: 16px; overflow: hidden; }
+        .heatmap-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,0,0,0.4) 0%, rgba(255,255,0,0.3) 50%, transparent 100%);
+            mix-blend-mode: multiply; pointer-events: none;
+        }
+
+        .img-caption {
+            font-size: 11px; font-weight: 700; color: var(--text-body); 
+            margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .meta-list { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-light); }
+        .meta-item { display: flex; justify-content: space-between; font-size: 13px; padding-bottom: 12px; border-bottom: 1px solid #F3F4F6; }
+        .meta-item:last-child { border: none; padding: 0; }
+        .meta-lbl { color: var(--text-body); }
+        .meta-val { font-weight: 700; color: var(--text-head); }
+
+        /* RIGHT: Analysis */
+        .analysis-container { display: flex; flex-direction: column; gap: 32px; }
+
+        /* 1. Diagnosis Header */
+        .diagnosis-card {
+            background: white; border-radius: var(--radius-xl); padding: 32px;
+            box-shadow: var(--shadow-card); border-left: 6px solid var(--border-light);
+        }
+        .diagnosis-card.critical { border-color: #EF4444; }
+        .diagnosis-card.safe { border-color: #10B981; }
+
+        .dc-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 0px; margin-bottom: 16px; }
+        .dc-title h2 { font-size: 28px; font-weight: 800; color: var(--text-head); margin-bottom: 4px; }
+        .dc-title span { font-size: 14px; color: var(--text-body); font-weight: 500; }
+        
+        .dc-badge { padding: 6px 16px; border-radius: 100px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .badge-crit { background: #FEF2F2; color: #DC2626; }
+        .badge-safe { background: #ECFDF5; color: #059669; }
+
+        .dc-desc { font-size: 14px; line-height: 1.6; color: var(--text-head); max-width: 90%; }
+
+        /* 2. Charts */
+        .analytics-row {
+            display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px;
+        }
+        
+        .chart-card {
+            background: white; border-radius: var(--radius-xl); padding: 24px;
+            box-shadow: var(--shadow-card); border: 1px solid var(--border-light);
+        }
+        .chart-header {
+            font-size: 14px; font-weight: 700; color: var(--text-head); 
+            margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+        }
+
+        /* 3. Solutions */
+        .solutions-card {
+            background: white; border-radius: var(--radius-xl); padding: 32px;
+            box-shadow: var(--shadow-card);
+        }
+        .sol-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        
+        .sol-col h3 { font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .sol-list { list-style: none; padding: 0; }
+        .sol-item { display: flex; gap: 16px; margin-bottom: 20px; }
+        .sol-icon {
+            width: 32px; height: 32px; border-radius: 8px; background: #F3F4F6;
+            color: var(--text-head); display: grid; place-items: center; font-size: 18px; flex-shrink: 0;
+        }
+        .sol-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .sol-text p { font-size: 13px; color: var(--text-body); line-height: 1.5; }
+
+        /* 4. AI ASSESSMENT CARD */
+        .ai-assess-card {
+            background: white; border-radius: var(--radius-xl); padding: 32px;
+            box-shadow: var(--shadow-card); border: 1px solid var(--border-light);
+        }
+        .sec-title { font-size: 18px; font-weight: 800; color: var(--text-head); margin-bottom: 24px; }
+        
+        .assess-group { margin-bottom: 32px; }
+        .assess-group h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-head); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .reasoning-list { padding-left: 20px; color: var(--text-body); font-size: 14px; line-height: 1.7; }
+        .reasoning-list li { margin-bottom: 8px; }
+
+        .conf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .conf-item { background: #F8FAFC; padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border-light); }
+        .conf-item span { display: block; font-size: 11px; color: var(--text-body); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+        .conf-item strong { display: block; font-size: 14px; color: var(--primary-dark); font-weight: 800; }
+
+        .impact-badges { display: flex; gap: 12px; flex-wrap: wrap; }
+        .impact-badge { 
+            padding: 8px 16px; background: #FFF7ED; color: #9A3412; border-radius: 8px; 
+            font-size: 13px; font-weight: 700; border: 1px solid #FFEDD5; display: flex; align-items: center; gap: 6px;
+        }
+
+        .disclaimer-box {
+            margin-top: 32px; padding: 16px; background: #F0F9FF; border: 1px solid #BAE6FD;
+            border-radius: 12px; display: flex; gap: 12px; align-items: center; color: #0369A1;
+        }
+        .disclaimer-box p { font-size: 12px; margin: 0; font-weight: 600; }
+
+        /* DELETE BUTTON */
+        .delete-container { margin-top: 32px; text-align: right; padding-top: 24px; border-top: 1px solid var(--border-light); }
+        .btn-delete {
+            background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;
+            padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-delete:hover { background: #FEE2E2; border-color: #FCA5A5; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ------------------------------------------------
+           RESPONSIVE BREAKPOINTS
+        ------------------------------------------------ */
+       /* MOBILE SIDEBAR FIX */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--sidebar-width);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    display: flex;
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+}
+
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .mobile-toggle {
+    display: block;
+  }
+}
+
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 900;
+  display: none;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .main-content { padding: 24px 16px; }
+            
+            .header { flex-direction: column; align-items: flex-start; gap: 20px; }
+            #headerActions { width: 100%; justify-content: space-between; }
+            
+            .sol-grid, .conf-grid { grid-template-columns: 1fr; }
+            
+            .diagnosis-card { padding: 20px; }
+            .dc-header { flex-direction: column; gap: 12px; }
+            
+            .chart-card { padding: 16px; }
+            .report-card { margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="ph-fill ph-plant"></i></div>
+            <span class="brand-text">CoconutGuard</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="dashboard.html" class="nav-link"><i class="ph ph-squares-four"></i> Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="scan.html" class="nav-link"><i class="ph ph-scan"></i> New Analysis</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link active"><i class="ph ph-chart-line-up"></i> Reports</a>
+            </li>
+            <li class="nav-item">
+                <a href="library.html" class="nav-link"><i class="ph ph-book-bookmark"></i> Library</a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link"><i class="ph ph-gear"></i> Settings</a>
+            </li>
+        </ul>
+        <div class="user-profile">
+            <div class="avatar">JV</div>
+            <div style="flex:1;">
+                <div style="font-size: 14px; font-weight: 700;">Jatin Vaishnav</div>
+                <div style="font-size: 12px; color: var(--text-body);">Premium User</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        
+        <header class="header">
+            <div id="headerTitle">
+                <button class="mobile-toggle" onclick="toggleSidebar()">
+  <i class="ph ph-list"></i>
+</button>
+
+                <h1 class="greeting">Reports History</h1>
+                <p>Archive of all crop disease analysis.</p>
+            </div>
+            <div id="headerActions" style="display: none; gap: 12px;">
+                <button class="btn-action btn-outline" onclick="showHistory()"><i class="ph-bold ph-arrow-left"></i> Back</button>
+                <button class="btn-action btn-primary" onclick="window.print()"><i class="ph-bold ph-file-pdf"></i> Export PDF</button>
+            </div>
+        </header>
+
+        <section id="historyView">
+            <div class="filter-bar">
+                <div class="search-box">
+                    <i class="ph-bold ph-magnifying-glass" style="color:var(--text-body);"></i>
+                    <input type="text" placeholder="Search by Disease or ID..." onkeyup="filterReports(this.value)">
+                </div>
+            </div>
+            <div class="report-grid" id="reportGrid">
+                </div>
+        </section>
+
+        <section id="detailView">
+            
+            <div class="research-layout">
+                
+                <div class="evidence-card">
+                    <div class="evidence-title">Visual Evidence</div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <div class="img-caption">ORIGINAL RGB CAPTURE</div>
+                        <img id="d_img" src="" class="scan-img-large" alt="Original">
+                    </div>
+
+                    <div>
+                        <div class="img-caption">GRAD-CAM THERMAL ANALYSIS</div>
+                        <div class="heatmap-container">
+                            <img id="d_img_cam" src="" class="scan-img-large" alt="Heatmap">
+                            <div class="heatmap-overlay"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="meta-list">
+                        <div class="meta-item">
+                            <span class="meta-lbl">Scan ID</span>
+                            <span class="meta-val" id="d_id">--</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-lbl">Timestamp</span>
+                            <span class="meta-val" id="d_date">--</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-lbl">Sensor Type</span>
+                            <span class="meta-val" id="d_sensor">RGB</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-lbl">GPS Location</span>
+                            <span class="meta-val" id="d_loc" style="font-family: monospace;">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-container">
+                    
+                    <div class="diagnosis-card" id="diagCard">
+                        <div class="dc-header">
+                            <div class="dc-title">
+                                <h2 id="d_disease">--</h2>
+                                <span>Pathology Detection Result</span>
+                            </div>
+                            <div class="dc-badge" id="d_badge">--</div>
+                        </div>
+                        <p class="dc-desc" id="d_desc">--</p>
+                    </div>
+
+                    <div class="analytics-row">
+                        <div class="chart-card">
+                            <div class="chart-header"><i class="ph-fill ph-brain"></i> Model Confidence</div>
+                            <div style="position: relative; height: 150px; width: 100%;">
+                                <canvas id="confChart"></canvas>
+                                <div style="position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-weight:800; font-size:24px;" id="confVal">--%</div>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="chart-header"><i class="ph-fill ph-chart-bar"></i> Impact Analysis</div>
+                            <div style="height: 150px;">
+                                <canvas id="impactChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="solutions-card">
+                        <div class="sol-grid">
+                            <div class="sol-col">
+                                <h3 style="color:#DC2626;"><i class="ph-fill ph-first-aid-kit"></i> Treatment Protocol</h3>
+                                <ul class="sol-list" id="treatList"></ul>
+                            </div>
+                            <div class="sol-col">
+                                <h3 style="color:#059669;"><i class="ph-fill ph-shield-check"></i> Prevention Strategy</h3>
+                                <ul class="sol-list" id="prevList"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-assess-card">
+                        <div class="sec-title">AI Diagnosis & Impact Assessment</div>
+                        
+                        <div class="assess-group">
+                            <h4><i class="ph-fill ph-brain" style="color:var(--primary);"></i> AI Reasoning</h4>
+                            <ul class="reasoning-list" id="aiReasoning">
+                                </ul>
+                        </div>
+
+                        <div class="assess-group">
+                            <h4><i class="ph-fill ph-sliders-horizontal" style="color:var(--accent-blue);"></i> Confidence Factors</h4>
+                            <div class="conf-grid">
+                                <div class="conf-item">
+                                    <span>Pattern Match</span>
+                                    <strong id="cf_pattern">High</strong>
+                                </div>
+                                <div class="conf-item">
+                                    <span>Image Quality</span>
+                                    <strong id="cf_quality">Optimal</strong>
+                                </div>
+                                <div class="conf-item">
+                                    <span>Symptom Clarity</span>
+                                    <strong id="cf_symptom">Clear</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="assess-group">
+                            <h4><i class="ph-fill ph-warning-octagon" style="color:var(--accent-orange);"></i> Risk & Impact</h4>
+                            <div class="impact-badges" id="impactBadges">
+                                </div>
+                        </div>
+
+                        <div class="disclaimer-box">
+                            <i class="ph-fill ph-info" style="font-size:20px;"></i>
+                            <p>This assessment is AI-assisted and intended to support, not replace, expert consultation.</p>
+                        </div>
+
+                        <div class="delete-container">
+                            <button class="btn-delete" onclick="deleteReport()">
+                                <i class="ph-bold ph-trash"></i> Delete Report
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+<div id="overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+   <script>
+    // --- STATIC KNOWLEDGE BASE ---
+    // Maps disease names to detailed static content
+    const diseaseDB = {
+        "Leaf Blight": {
+            desc: "Detected fungal infection characterized by necrotic lesions spreading from leaf tips. This pathology significantly reduces photosynthetic efficiency and can lead to yield loss if untreated.",
+            impactData: [75, 40, 20], // Severity, Spread, Yield Loss
+            treatments: [
+                { t: "Isolate Crop", d: "Immediately isolate the affected palm to stop fungal spore dispersion." },
+                { t: "Chemical App", d: "Apply 1% Bordeaux mixture or Copper Oxychloride paste to lesions." },
+                { t: "Pruning", d: "Remove and burn infected fronds safely away from the plantation." }
+            ],
+            prevention: [
+                { t: "Drainage", d: "Improve soil drainage to reduce humidity, which fuels fungal growth." },
+                { t: "Nutrition", d: "Increase Potash application to boost natural immunity." }
+            ],
+            reasoning: [
+                "Identified distinct necrotic lesions spreading from the leaf tips.",
+                "Texture analysis indicates fungal spore density consistent with <em>Lasiodiplodia</em>.",
+                "Color histogram matches known blight progression patterns."
+            ],
+            confidenceFactors: { pattern: "High Match", quality: "Optimal", symptom: "Clear Visibility" },
+            impact: { yield: "~15% Loss", spread: "High Risk", urgency: "Immediate" }
+        },
+        "Healthy": {
+            desc: "The crop exhibits optimal physiological traits with no visible signs of pathogenic stress, pest infestation, or nutrient deficiency.",
+            impactData: [5, 0, 0],
+            treatments: [
+                { t: "Routine Care", d: "Continue standard irrigation and nutrient application schedule." }
+            ],
+            prevention: [
+                { t: "Monitoring", d: "Conduct routine bi-weekly visual inspections." },
+                { t: "Weed Control", d: "Ensure the base of the tree is clear of weeds." }
+            ],
+            reasoning: [
+                "No necrotic lesions or discoloration detected on leaf surfaces.",
+                "Leaf texture is consistent with healthy tissue structure.",
+                "Chlorophyll signatures indicate optimal biological health."
+            ],
+            confidenceFactors: { pattern: "High Match", quality: "Good", symptom: "None" },
+            impact: { yield: "Optimal", spread: "None", urgency: "Routine" }
+        }
+    };
+
+    // --- STATE ---
+    let allReports = [];
+    let currentIndex = null;
+    let confChart = null;
+    let impactChart = null;
+    const STORAGE_KEY = 'cg_scan_history';
+
+    // --- INITIALIZATION ---
+    document.addEventListener("DOMContentLoaded", () => {
+        loadData();
+        checkUrlParams();
+    });
+
+    function loadData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            try {
+                allReports = JSON.parse(raw);
+            } catch (e) {
+                console.error("Data corruption", e);
+                allReports = [];
+            }
+        }
+        
+        // Render the grid initially
+        renderGrid(allReports);
+    }
+
+    function checkUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('latest') === 'true' && allReports.length > 0) {
+            // Open the most recent report (index 0)
+            openDetail(0);
+        }
+    }
+
+    // --- FORMATTERS ---
+    function formatTimestamp(ts) {
+        if (!ts) return "Unknown Date";
+        const date = new Date(ts);
+        // Fallback for invalid dates
+        if (isNaN(date.getTime())) return "Invalid Date";
+        
+        return date.toLocaleString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+            hour: 'numeric', minute: '2-digit'
+        });
+    }
+
+    // --- VIEW LOGIC: LIST ---
+    function renderGrid(reports) {
+        const grid = document.getElementById('reportGrid');
+        grid.innerHTML = "";
+
+        if (!reports || reports.length === 0) {
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-body); padding: 40px;">
+                No scan reports found. Start a new analysis.
+            </div>`;
+            return;
+        }
+
+        reports.forEach((scan, index) => {
+            // Normalize data access
+            const isHealthy = (scan.disease === "Healthy" || scan.status === "Healthy");
+            const statusLabel = isHealthy ? "Healthy" : "Critical Risk";
+            const statusColor = isHealthy ? "background:#ECFDF5; color:#059669;" : "background:#FEF2F2; color:#DC2626;";
+            const imgUrl = scan.image || "https://placehold.co/600x400?text=No+Image";
+
+            const card = document.createElement('div');
+            card.className = 'report-card';
+            card.onclick = () => openDetail(index);
+            
+            card.innerHTML = `
+                <div class="rc-status" style="${statusColor}">${statusLabel}</div>
+                <img src="${imgUrl}" class="rc-img" alt="Scan">
+                <div class="rc-info">
+                    <h3>${scan.id || "Unknown ID"}</h3>
+                    <p>${formatTimestamp(scan.timestamp)} • ${scan.location || "Unknown Loc"}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filterReports(query) {
+        const lower = query.toLowerCase();
+        const filtered = allReports.filter(r => 
+            (r.id && r.id.toLowerCase().includes(lower)) ||
+            (r.disease && r.disease.toLowerCase().includes(lower))
+        );
+        renderGrid(filtered);
+    }
+
+    // --- VIEW LOGIC: DETAIL ---
+    function openDetail(index) {
+        if (!allReports[index]) return;
+        
+        currentIndex = index;
+        const scan = allReports[index];
+
+        // 1. Get Static Info based on Disease Type
+        // Fallback to "Leaf Blight" if disease name is unknown/custom, unless it's explicitly "Healthy"
+        const diseaseKey = (scan.disease === "Healthy") ? "Healthy" : "Leaf Blight";
+        const info = diseaseDB[diseaseKey];
+        const isHealthy = (diseaseKey === "Healthy");
+
+        // 2. Switch Views
+        document.getElementById('historyView').style.display = 'none';
+        document.getElementById('detailView').style.display = 'block';
+        document.getElementById('headerActions').style.display = 'flex';
+        document.getElementById('headerTitle').innerHTML = `
+            <h1>Research Detail</h1>
+            <p>Analysis ID: ${scan.id}</p>
+        `;
+
+        // 3. Populate Visual Evidence
+        const imgUrl = scan.image || "";
+        document.getElementById('d_img').src = imgUrl;
+        document.getElementById('d_img_cam').src = imgUrl; // Using same img for mock thermal
+        
+        document.getElementById('d_id').innerText = scan.id || "--";
+        document.getElementById('d_date').innerText = formatTimestamp(scan.timestamp);
+        document.getElementById('d_sensor').innerText = scan.sensor || "RGB Camera";
+        document.getElementById('d_loc').innerText = scan.coords || scan.location || "--";
+
+        // 4. Populate Diagnosis
+        document.getElementById('d_disease').innerText = scan.disease || "Unknown";
+        document.getElementById('d_desc').innerText = info.desc;
+        
+        const badge = document.getElementById('d_badge');
+        badge.innerText = isHealthy ? "LOW RISK" : "CRITICAL RISK";
+        badge.className = isHealthy ? "dc-badge badge-safe" : "dc-badge badge-crit";
+        document.getElementById('diagCard').className = isHealthy ? "diagnosis-card safe" : "diagnosis-card critical";
+
+        // 5. Populate Lists (Treatments/Reasoning)
+        const renderList = (id, arr, icon) => {
+            document.getElementById(id).innerHTML = arr.map(item => {
+                // Handle simple strings (reasoning) vs objects (treatments)
+                if (typeof item === 'string') return `<li>${item}</li>`;
+                return `
+                    <li class="sol-item">
+                        <div class="sol-icon"><i class="${icon}"></i></div>
+                        <div class="sol-text"><h4>${item.t}</h4><p>${item.d}</p></div>
+                    </li>`;
+            }).join('');
+        };
+
+        renderList('treatList', info.treatments, 'ph-fill ph-check-circle');
+        renderList('prevList', info.prevention, 'ph-fill ph-shield');
+        renderList('aiReasoning', info.reasoning, ''); // Strings only for reasoning
+
+        // 6. Populate Confidence Factors
+        if (info.confidenceFactors) {
+            document.getElementById('cf_pattern').innerText = info.confidenceFactors.pattern;
+            document.getElementById('cf_quality').innerText = info.confidenceFactors.quality;
+            document.getElementById('cf_symptom').innerText = info.confidenceFactors.symptom;
+        }
+
+        // 7. Populate Impact Badges
+        if (info.impact) {
+            const color = isHealthy ? '#059669' : '#9A3412';
+            document.getElementById('impactBadges').innerHTML = `
+                <span class="impact-badge" style="color:${color}; border-color:currentColor; background:transparent;">
+                    <i class="ph-fill ph-chart-line-down"></i> Yield: ${info.impact.yield}
+                </span>
+                <span class="impact-badge" style="color:${color}; border-color:currentColor; background:transparent;">
+                    <i class="ph-fill ph-share-network"></i> Spread: ${info.impact.spread}
+                </span>
+            `;
+        }
+
+        // 8. Render Charts
+        // Ensure confidence is a number (handle string "94%" legacy case)
+        let confVal = parseInt(scan.confidence);
+        if (isNaN(confVal)) confVal = 0;
+        
+        renderCharts(confVal, isHealthy, info.impactData);
+
+        // Scroll top
+        window.scrollTo(0,0);
+    }
+
+    function showHistory() {
+        document.getElementById('detailView').style.display = 'none';
+        document.getElementById('headerActions').style.display = 'none';
+        document.getElementById('historyView').style.display = 'block';
+        document.getElementById('headerTitle').innerHTML = `
+            <button class="mobile-toggle" onclick="toggleSidebar()"><i class="ph ph-list"></i></button>
+            <h1 class="greeting">Reports History</h1>
+            <p>Archive of all crop disease analysis.</p>
+        `;
+        // Clear param without reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    function deleteReport() {
+        if(currentIndex === null) return;
+        
+        if(confirm("Are you sure you want to permanently delete this report?")) {
+            allReports.splice(currentIndex, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(allReports));
+            showHistory();
+            renderGrid(allReports);
+        }
+    }
+
+    // --- CHARTS ---
+    function renderCharts(confVal, isHealthy, impactData) {
+        const mainColor = isHealthy ? '#10B981' : '#EF4444';
+
+        // 1. Confidence Chart
+        document.getElementById('confVal').innerText = confVal + "%";
+        document.getElementById('confVal').style.color = mainColor;
+
+        const ctx1 = document.getElementById('confChart').getContext('2d');
+        if (confChart) confChart.destroy();
+
+        confChart = new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Confidence', 'Gap'],
+                datasets: [{
+                    data: [confVal, 100 - confVal],
+                    backgroundColor: [mainColor, '#F3F4F6'],
+                    borderWidth: 0,
+                    cutout: '80%'
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                animation: { duration: 1000 }
+            }
+        });
+
+        // 2. Impact Chart
+        const ctx2 = document.getElementById('impactChart').getContext('2d');
+        if (impactChart) impactChart.destroy();
+
+        impactChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Severity', 'Spread', 'Yield Risk'],
+                datasets: [{
+                    data: impactData,
+                    backgroundColor: [mainColor, '#F97316', '#3B82F6'],
+                    borderRadius: 6,
+                    barThickness: 24
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: '#F3F4F6' }, ticks: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // --- UI HELPERS ---
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+</script>
+</body>
+</html>

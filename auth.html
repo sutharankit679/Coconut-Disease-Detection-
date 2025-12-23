@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Access | CoconutGuard AI</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* * ==========================================
+         * 🔹 THEME: GREEN LITE ENTERPRISE
+         * ==========================================
+         */
+        :root {
+            --primary-tea: #2F7F6A;
+            --primary-light: #489B85;
+            --primary-hover: #246654;
+            
+            --bg-surface: #F2F5F3;
+            --glass-frame-bg: rgba(255, 255, 255, 0.65);
+            --shadow-soft: 0 30px 60px -12px rgba(31, 61, 43, 0.15);
+            
+            --text-main: #2F4039;
+            --text-muted: #7A998E;
+            --border-soft: #D0E0D8;
+            
+            --radius-outer: 24px; 
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-surface);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* * ==========================================
+         * 🌿 BACKGROUND (Ambient)
+         * ==========================================
+         */
+        .ambient-bg {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(208, 240, 192, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 90% 90%, rgba(47, 127, 106, 0.1) 0%, transparent 50%);
+            z-index: 0;
+            filter: blur(60px);
+        }
+
+        .grid-overlay {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(5, 25, 16, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(5, 25, 16, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        /* * ==========================================
+         * 🔒 MAIN CONTAINER (Responsive Glass)
+         * ==========================================
+         */
+        .glass-frame {
+            position: relative; z-index: 10;
+            width: 96%; max-width: 1400px;
+            height: 90vh; min-height: 600px;
+            
+            background: var(--glass-frame-bg);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            
+            border-radius: var(--radius-outer);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            
+            opacity: 0; transform: translateY(20px) scale(0.98);
+            animation: entry 0.8s var(--easing) forwards;
+        }
+
+        @keyframes entry { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* * ==========================================
+         * 🌗 SPLIT LAYOUT
+         * ==========================================
+         */
+        .split-layout {
+            display: flex;
+            width: 100%; height: 100%;
+            background: white;
+        }
+
+        /* LEFT: VISUAL (Hidden on Mobile/Tablet) */
+        .visual-side {
+            flex: 1.2; 
+            position: relative;
+            background-image: url('https://images.unsplash.com/photo-1590682680695-43b964a3ae17?q=80&w=2500&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 60px;
+            color: white;
+        }
+
+        .visual-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to right, rgba(20, 40, 30, 0.4), rgba(10, 30, 20, 0.8));
+            z-index: 1;
+        }
+
+        .visual-content { position: relative; z-index: 2; }
+        .quote { font-size: 2.2rem; font-weight: 700; line-height: 1.25; margin-bottom: 24px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .meta { display: flex; align-items: center; gap: 12px; font-size: 1rem; font-weight: 500; opacity: 0.9; }
+        .meta-line { width: 50px; height: 3px; background: #D0F0C0; }
+
+        /* RIGHT: FORM */
+        .form-side {
+            flex: 1;
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(255,255,255,0.9);
+            position: relative;
+            overflow-y: auto; /* Allow scroll if vertical height is small */
+        }
+
+        /* Branding */
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        
+        .leaf-wrap {
+            width: 56px; height: 56px;
+            color: var(--primary-tea);
+            margin: 0 auto 16px auto;
+            filter: drop-shadow(0 4px 6px rgba(47, 127, 106, 0.15));
+        }
+
+        .welcome-text { 
+            font-size: clamp(1.75rem, 4vw, 2rem); 
+            font-weight: 700; 
+            color: var(--primary-tea); letter-spacing: -0.5px; margin-bottom: 6px; 
+        }
+        .sub-text { font-size: 1rem; color: var(--text-muted); }
+
+        /* Role Switcher */
+        .role-switch {
+            display: flex; background: #F4F7F5; padding: 5px;
+            border-radius: 12px; margin-bottom: 32px;
+        }
+        .role-btn {
+            flex: 1; padding: 12px; text-align: center;
+            font-size: 0.95rem; font-weight: 600; color: var(--text-muted);
+            border-radius: 10px; cursor: pointer; transition: all 0.2s;
+            user-select: none;
+        }
+        .role-btn.active { background: white; color: var(--primary-tea); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+        /* Forms */
+        .form-panel { display: none; animation: fadeIn 0.4s ease; }
+        .form-panel.active { display: block; }
+        
+        .field-group { margin-bottom: 24px; }
+        .label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--primary-tea); margin-bottom: 8px; margin-left: 2px; }
+        
+        .input-box {
+            width: 100%; height: 56px; padding: 0 16px;
+            border: 2px solid var(--border-soft); border-radius: 14px;
+            font-size: 1rem; color: var(--text-main);
+            background: white; transition: all 0.2s; font-family: inherit;
+            -webkit-appearance: none; /* Mobile fix */
+        }
+        .input-box:focus { border-color: var(--primary-tea); outline: none; box-shadow: 0 0 0 4px rgba(47, 127, 106, 0.1); }
+        .input-box:disabled { background: #F8FAF9; cursor: not-allowed; border-color: transparent; }
+
+        /* CTA Button */
+        .cta-btn {
+            width: 100%; height: 60px;
+            background: var(--primary-tea); color: white;
+            border: none; border-radius: 14px;
+            font-size: 1.05rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; margin-top: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 10px 20px rgba(47, 127, 106, 0.15);
+        }
+        .cta-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 15px 25px rgba(47, 127, 106, 0.25); }
+        .cta-btn:active { transform: scale(0.98); }
+        .cta-btn:disabled { background: #94A3B8; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* Maintenance Box */
+        .alert-box {
+            background: #FFF9F0; border: 1px solid #FEEBC8; color: #B45309;
+            padding: 14px; border-radius: 12px; font-size: 0.9rem;
+            margin-bottom: 24px; display: flex; align-items: flex-start; gap: 10px;
+            line-height: 1.5;
+        }
+
+        /* Guest */
+        .guest-opt {
+            display: block; text-align: center; margin-top: 30px;
+            font-size: 0.95rem; font-weight: 600; color: var(--primary-light);
+            text-decoration: none; transition: color 0.2s; padding: 10px;
+        }
+        .guest-opt:hover { color: var(--primary-tea); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* * ==========================================
+         * 📱 RESPONSIVE BREAKPOINTS
+         * ==========================================
+         */
+
+        /* TABLET & MOBILE (≤ 1024px) */
+        @media (max-width: 1024px) {
+            .visual-side { display: none; } /* Hide visual to focus on auth */
+            
+            .glass-frame {
+                height: auto;
+                min-height: auto;
+                max-width: 600px;
+                margin: 20px;
+            }
+            
+            .form-side {
+                padding: 40px;
+            }
+        }
+
+        /* MOBILE (≤ 480px) */
+        @media (max-width: 480px) {
+            body {
+                background-color: white; /* Clean background for mobile */
+                align-items: flex-start; /* Start from top */
+                padding: 0;
+            }
+
+            .ambient-bg, .grid-overlay { display: none; } /* Simpler bg for mobile perf */
+
+            .glass-frame {
+                width: 100%; max-width: 100%;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                background: white;
+                animation: none;
+                opacity: 1; transform: none;
+            }
+
+            .form-side {
+                padding: 32px 24px;
+                height: 100%;
+                justify-content: flex-start;
+                padding-top: 60px; /* Safe space from top */
+            }
+
+            .auth-header { margin-bottom: 32px; }
+            .leaf-wrap { width: 48px; height: 48px; }
+            
+            .role-switch { margin-bottom: 24px; }
+            
+            .field-group { margin-bottom: 20px; }
+            .input-box { height: 52px; font-size: 16px; /* Prevent zoom on iOS */ }
+            
+            .cta-btn { height: 56px; margin-top: 20px; }
+            
+            .guest-opt { margin-top: auto; padding-bottom: 20px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="glass-frame">
+        <div class="split-layout">
+            
+            <div class="visual-side">
+                <div class="visual-overlay"></div>
+                <div class="visual-content">
+                    <div class="quote">"Precision agriculture powered by nature-inspired intelligence."</div>
+                    <div class="meta">
+                        <div class="meta-line"></div>
+                        <span>CoconutGuard AI v2.4</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-side">
+                
+                <div class="auth-header">
+                    <div class="leaf-wrap">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
+                            <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/>
+                        </svg>
+                    </div>
+                    <h1 class="welcome-text">Welcome Back</h1>
+                    <p class="sub-text">Secure Access Portal</p>
+                </div>
+
+                <div class="role-switch">
+                    <div class="role-btn active" id="tab-farmer" onclick="setRole('farmer')">Farmer</div>
+                    <div class="role-btn" id="tab-researcher" onclick="setRole('researcher')">Researcher</div>
+                </div>
+
+                <div class="form-panel active" id="form-farmer">
+                    <div class="alert-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
+                            <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span><strong>Maintenance:</strong> OTP Login Offline</span>
+                    </div>
+                    <div class="field-group">
+                        <label class="label">Mobile Number</label>
+                        <input type="tel" class="input-box" placeholder="+91 XXXXX XXXXX" disabled>
+                    </div>
+                    <button class="cta-btn" disabled>Send One-Time Password</button>
+                </div>
+
+                <div class="form-panel" id="form-researcher">
+                    <div class="field-group">
+                        <label class="label">Institutional Email</label>
+                        <input type="email" class="input-box" placeholder="researcher@agri.org">
+                    </div>
+                    <div class="field-group">
+                        <label class="label">Access Password</label>
+                        <input type="password" class="input-box" placeholder="••••••••">
+                    </div>
+                    <button class="cta-btn" onclick="handleLogin()">
+                        <span>Access Dashboard</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <a href="#" class="guest-opt" onclick="goDashboard()">
+                    Continue as Guest (Demo Mode)
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setRole(role) {
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${role}`).classList.add('active');
+            
+            document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`form-${role}`).classList.add('active');
+        }
+
+        function handleLogin() {
+            const btn = document.querySelector('#form-researcher .cta-btn');
+            btn.innerHTML = 'Verifying...';
+            btn.style.opacity = '0.9';
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+        }
+
+        function goDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

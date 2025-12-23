@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CoconutGuard AI | Enterprise Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            /* 🎨 THEME: "Clean Agri-Tech" */
+            --primary: #10B981;
+            --primary-dark: #065F46;
+            --primary-light: #ECFDF5;
+            --accent: #3B82F6;
+            
+            /* Neutrals */
+            --bg-body: #F3F5F7;
+            --bg-card: #FFFFFF;
+            --text-head: #111827;
+            --text-body: #6B7280;
+            --border-light: #E5E7EB;
+
+            /* Shadows */
+            --shadow-card: 0 10px 30px -10px rgba(0,0,0,0.05);
+            --shadow-hover: 0 20px 40px -10px rgba(16, 185, 129, 0.15);
+            
+            /* Dimensions */
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-head);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ------------------------------------------------
+           1. SIDEBAR NAVIGATION
+        ------------------------------------------------ */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            display: flex; flex-direction: column;
+            padding: 32px 24px;
+            border-right: 1px solid transparent;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Brand */
+        .brand {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 48px;
+            color: var(--primary-dark);
+        }
+        .brand-icon { 
+            width: 40px; height: 40px; background: var(--primary-light); 
+            color: var(--primary); border-radius: 12px; 
+            display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
+        }
+        .brand-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+
+        /* Menu */
+        .nav-menu { list-style: none; flex: 1; overflow-y: auto; }
+        .nav-item { margin-bottom: 8px; }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px;
+            color: var(--text-body);
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600; font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover { background: var(--bg-body); color: var(--text-head); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary-dark); }
+        .nav-link.active i { color: var(--primary); font-weight: bold; }
+
+        /* Profile */
+        .user-profile {
+            background: var(--bg-body);
+            padding: 12px; border-radius: var(--radius-lg);
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer; margin-top: auto;
+        }
+        .avatar {
+            width: 36px; height: 36px; background: #D1FAE5; color: var(--primary-dark);
+            border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+
+        /* ------------------------------------------------
+           2. MAIN CONTENT AREA
+        ------------------------------------------------ */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 40px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 40px;
+        }
+        .mobile-toggle { display: none; font-size: 28px; color: var(--text-head); background: none; border: none; cursor: pointer; }
+        
+        .greeting h1 { font-size: 26px; font-weight: 700; color: var(--text-head); }
+        .greeting p { color: var(--text-body); font-size: 15px; margin-top: 4px; }
+
+        .search-bar {
+            background: var(--bg-card);
+            padding: 12px 20px;
+            border-radius: 100px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: var(--shadow-card);
+            width: 300px;
+            color: var(--text-body);
+        }
+        .search-bar input { border: none; outline: none; width: 100%; font-family: inherit; font-size: 14px; background: transparent; }
+
+        /* ------------------------------------------------
+           3. DASHBOARD GRID & RESPONSIVE LAYOUT
+        ------------------------------------------------ */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Desktop: 2/3 + 1/3 */
+            gap: 32px;
+            max-width: 1400px;
+        }
+
+        .left-col { display: flex; flex-direction: column; gap: 32px; }
+        .right-col { display: flex; flex-direction: column; gap: 32px; }
+
+        /* HERO CARD */
+        .hero-status-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: var(--shadow-card);
+            position: relative; overflow: hidden;
+        }
+        .hero-status-card::before {
+            content: ''; position: absolute; right: -50px; top: -50px;
+            width: 200px; height: 200px; background: var(--primary-light);
+            border-radius: 50%; z-index: 0;
+        }
+        .status-text { z-index: 1; position: relative; }
+        .status-badge { 
+            display: inline-block; background: var(--primary-light); color: var(--primary-dark);
+            padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 16px;
+        }
+        .status-text h2 { font-size: 28px; margin-bottom: 8px; line-height: 1.2; }
+        .status-text p { color: var(--text-body); max-width: 400px; line-height: 1.6; margin-bottom: 24px; }
+
+        .btn-scan {
+            background: var(--text-head); color: white; border: none; padding: 16px 32px;
+            border-radius: 14px; font-size: 15px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); transition: transform 0.2s;
+        }
+        .btn-scan:hover { transform: translateY(-2px); background: #000; }
+
+        .hero-chart { position: relative; width: 120px; height: 120px; display: grid; place-items: center; z-index: 1; flex-shrink: 0; }
+
+        /* STATS */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        
+        .stat-card {
+            background: var(--bg-card); border-radius: var(--radius-lg); padding: 24px;
+            box-shadow: var(--shadow-card); display: flex; flex-direction: column; gap: 12px;
+            transition: 0.2s; border: 1px solid transparent;
+        }
+        
+        .icon-box { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; margin-bottom: 8px; }
+        .stat-num { font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+        .stat-label { font-size: 14px; color: var(--text-body); font-weight: 500; }
+
+        /* TABLE */
+        .table-card {
+            background: var(--bg-card); border-radius: var(--radius-xl); padding: 32px;
+            box-shadow: var(--shadow-card);
+        }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .section-title { font-size: 18px; font-weight: 700; }
+        
+        /* Table Default (Desktop) */
+        .responsive-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; }
+        .responsive-table th { text-align: left; color: var(--text-body); font-size: 12px; text-transform: uppercase; font-weight: 600; padding: 0 16px; }
+        .responsive-table td { background: #FAFAFA; padding: 16px; border-top: 1px solid #F3F4F6; border-bottom: 1px solid #F3F4F6; }
+        .responsive-table td:first-child { border-left: 1px solid #F3F4F6; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .responsive-table td:last-child { border-right: 1px solid #F3F4F6; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+        /* RIGHT WIDGETS */
+        .weather-widget {
+            background: linear-gradient(145deg, #10B981, #059669);
+            color: white; border-radius: var(--radius-xl); padding: 32px; text-align: center;
+        }
+        .weather-icon { font-size: 64px; margin-bottom: 16px; display: block; }
+        .weather-temp { font-size: 42px; font-weight: 800; }
+        .weather-loc { opacity: 0.9; font-size: 14px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        
+        .chart-container {
+            background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
+            box-shadow: var(--shadow-card); height: 300px; position: relative;
+        }
+
+        .tip-card {
+            background: #F8FAFC; padding: 24px; border-radius: var(--radius-lg); border: 1px dashed var(--border-light);
+        }
+
+        /* ------------------------------------------------
+           4. MOBILE RESPONSIVENESS (The Key Logic)
+        ------------------------------------------------ */
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .right-col { flex-direction: row; flex-wrap: wrap; }
+            .weather-widget, .chart-container, .tip-card { flex: 1; min-width: 280px; }
+        }
+
+        @media (max-width: 768px) {
+            /* General Layout */
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .main-content { padding: 20px; overflow: visible; }
+            
+            /* Sidebar becomes Drawer */
+            .sidebar {
+                position: fixed; top: 0; left: 0; height: 100%; width: 280px;
+                transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+            /* Header */
+            .header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+            .header-top { display: flex; align-items: center; width: 100%; justify-content: space-between; }
+            .mobile-toggle { display: block; }
+            .search-bar { width: 100%; }
+
+            /* Hero Card */
+            .hero-status-card { flex-direction: column; align-items: flex-start; padding: 24px; }
+            .hero-status-card::before { display: none; }
+            .hero-chart { width: 100%; height: auto; margin-top: 24px; display: flex; justify-content: center; }
+            .btn-scan { width: 100%; justify-content: center; }
+
+            /* Stats */
+            .stats-row { grid-template-columns: 1fr; gap: 16px; }
+            .stat-card { flex-direction: row; align-items: center; justify-content: space-between; padding: 20px; }
+            .stat-content { display: flex; flex-direction: column; }
+            .icon-box { margin-bottom: 0; order: 2; }
+
+            /* Table to Card View */
+            .table-card { padding: 20px; }
+            .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { 
+                display: block; 
+            }
+            .responsive-table thead { display: none; } /* Hide Headers */
+            .responsive-table tr { margin-bottom: 16px; border: 1px solid var(--border-light); border-radius: 12px; padding: 16px; background: #FAFAFA; }
+            .responsive-table td { 
+                border: none; padding: 8px 0; background: transparent; 
+                display: flex; justify-content: space-between; text-align: right;
+                font-size: 14px;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: 600; color: var(--text-body); text-transform: uppercase; font-size: 11px;
+            }
+            .responsive-table td:first-child, .responsive-table td:last-child { border-radius: 0; border: none; }
+
+            /* Right Col Stack */
+            .right-col { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="ph-fill ph-plant"></i></div>
+            <span class="brand-text">CoconutGuard</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="#" class="nav-link active"><i class="ph ph-squares-four"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="scan.html" class="nav-link"><i class="ph ph-scan"></i> New Analysis</a></li>
+            <li class="nav-item"><a href="reports.html" class="nav-link"><i class="ph ph-chart-line-up"></i> Reports</a></li>
+            <li class="nav-item"><a href="library.html" class="nav-link"><i class="ph ph-book-bookmark"></i> Library</a></li>
+            <li class="nav-item"><a href="settings.html" class="nav-link"><i class="ph ph-gear"></i> Settings</a></li>
+        </ul>
+
+        <div class="user-profile" id="sidebarProfile" onclick="goToProfile()">
+    <div class="avatar" id="sidebarAvatar">JD</div>
+    <div style="flex:1;">
+        <div id="sidebarName" style="font-size:14px; font-weight:700;">
+            John Doe
+        </div>
+        <div style="font-size:12px; color:var(--text-body);">
+            Premium User
+        </div>
+    </div>
+</div>
+
+    </aside>
+
+    <main class="main-content">
+        
+        <header class="header">
+            <div class="header-top">
+                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1>Overview</h1>
+                    <p class="desktop-only" style="display: none;">Welcome back!</p>
+                </div>
+                <div style="width: 28px;"></div> </div>
+            
+           
+        </header>
+
+        <div class="dashboard-grid">
+            
+            <div class="left-col">
+                
+                <div class="hero-status-card">
+                    <div class="status-text">
+                        <span class="status-badge">System Operational</span>
+                        <h2>Ready for Inspection</h2>
+                        <p>Our AI model (v2.4) is ready.</p>
+                        <button class="btn-scan" onclick="window.location.href='scan.html'">
+                            <i class="ph-bold ph-camera"></i> Start Diagnosis
+                        </button>
+                    </div>
+                    <div class="hero-chart">
+                        <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E5E7EB" stroke-width="3" />
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" stroke-width="3" stroke-dasharray="85, 100" />
+                        </svg>
+                        <div style="position: absolute; text-align: center;">
+                            <span style="display: block; font-size: 20px; font-weight: 700; color: var(--primary);">85%</span>
+                            <span style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Safe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <span class="stat-num">12</span>
+                            <span class="stat-label">Risks Detected</span>
+                        </div>
+                        <div class="icon-box" style="background: #FFF7ED; color: #EA580C;"><i class="ph-fill ph-warning"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <span class="stat-num">1,240</span>
+                            <span class="stat-label">Scans Done</span>
+                        </div>
+                        <div class="icon-box" style="background: #EFF6FF; color: #2563EB;"><i class="ph-fill ph-image"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <span class="stat-num">48</span>
+                            <span class="stat-label">Acres Monitored</span>
+                        </div>
+                        <div class="icon-box" style="background: #F0FDF4; color: #16A34A;"><i class="ph-fill ph-tree"></i></div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="section-header">
+                        <div class="section-title">Recent Activity</div>
+                        <a href="reports.html" style="color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px;">View All</a>
+                    </div>
+                    <table class="responsive-table">
+                        <thead>
+                            <tr>
+                                <th>Scan ID</th>
+                                <th>Location</th>
+                                <th>Result</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                                <tbody id="recentActivityBody">
+   <tr>
+     <td data-label="Result">
+  <strong style="color:${scan.status === 'Healthy' ? '#059669' : '#DC2626'}">
+    ${scan.disease}
+  </strong>
+</td>
+
+
+   </tr>
+</tbody>
+
+
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="right-col">
+                
+               <div class="weather-widget">
+  <div class="weather-loc">
+    <i class="ph-fill ph-map-pin"></i>
+    <span id="cityState">Fetching location...</span>
+  </div>
+
+  <div class="weather-temp">
+    <span id="weatherTemp">--°C</span>
+  </div>
+
+  <div class="weather-desc">
+    <span id="weatherDesc">Loading weather...</span>
+  </div>
+</div>
+
+
+                <div class="tip-card">
+                    <div style="font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph-fill ph-lightbulb" style="color: #F59E0B;"></i> Farming Tip
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-body); line-height: 1.6;">
+                        High humidity increases the risk of Bud Rot. Ensure proper drainage in Block A this week.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // Close when clicking overlay
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.mobile-toggle');
+            if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
+            }
+        });
+
+
+  
+  // =========================
+  // LOCATION + WEATHER LOGIC
+  // =========================
+
+  window.addEventListener("load", () => {
+    if (!navigator.geolocation) {
+      document.getElementById("cityState").innerText = "Location not supported";
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      handleLocationSuccess,
+      handleLocationError,
+      { enableHighAccuracy: true }
+    );
+  });
+
+  function handleLocationSuccess(position) {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+    // Save for reports & profile
+    localStorage.setItem("cg_lat", lat.toFixed(4));
+    localStorage.setItem("cg_lng", lon.toFixed(4));
+
+    fetchCityState(lat, lon);
+    fetchWeather(lat, lon);
+  }
+
+  function handleLocationError() {
+    document.getElementById("cityState").innerText = "Location permission denied";
+    document.getElementById("weatherDesc").innerText = "Weather unavailable";
+  }
+
+
+
+function loadRecentActivity() {
+  const tbody = document.getElementById("recentActivityBody");
+  const history = JSON.parse(localStorage.getItem("cg_scan_history")) || [];
+
+  tbody.innerHTML = "";
+
+  if (history.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;color:#6B7280;">
+          No recent scans
+        </td>
+      </tr>`;
+    return;
+  }
+
+  history.slice(0, 5).forEach(scan => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td data-label="Scan ID"><strong>#${scan.id}</strong></td>
+      <td data-label="Location">${scan.location}</td>
+      <td data-label="Result">
+        <span style="font-weight:700;color:${scan.status === "Healthy" ? "#059669" : "#DC2626"}">
+          ${scan.disease}
+        </span>
+      </td>
+      <td data-label="Date">
+        ${new Date(scan.date).toLocaleDateString()}
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+window.addEventListener("load", loadRecentActivity);
+
+
+  // =========================
+  // REVERSE GEOCODING
+  // =========================
+  function fetchCityState(lat, lon) {
+    fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+    )
+      .then(res => res.json())
+      .then(data => {
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          "Unknown City";
+
+        const state = data.address.state || "";
+
+        document.getElementById("cityState").innerText =
+          `${city}, ${state}`;
+
+        // Save for profile
+        localStorage.setItem("cg_city", city);
+        localStorage.setItem("cg_state", state);
+      })
+      .catch(() => {
+        document.getElementById("cityState").innerText = "Location unavailable";
+      });
+  }
+
+  // =========================
+  // WEATHER FETCH
+  // =========================
+  function fetchWeather(lat, lon) {
+    fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
+    )
+      .then(res => res.json())
+      .then(data => {
+        const temp = data.current_weather.temperature;
+        const code = data.current_weather.weathercode;
+
+        document.getElementById("weatherTemp").innerText = `${temp}°C`;
+        document.getElementById("weatherDesc").innerText =
+          getWeatherText(code);
+      })
+      .catch(() => {
+        document.getElementById("weatherDesc").innerText = "Weather unavailable";
+      });
+  }
+
+  // =========================
+  // WEATHER CODE TO TEXT
+  // =========================
+  function getWeatherText(code) {
+    const map = {
+      0: "Clear Sky",
+      1: "Mainly Clear",
+      2: "Partly Cloudy",
+      3: "Overcast",
+      45: "Fog",
+      48: "Dense Fog",
+      51: "Light Drizzle",
+      61: "Rain",
+      71: "Snow",
+      80: "Rain Showers"
+    };
+    return map[code] || "Weather Update";
+  }
+
+
+
+  function getInitials(name) {
+    if (!name) return "JD";
+    const parts = name.split(" ").filter(p => p.length);
+    return parts.length === 1
+      ? parts[0][0].toUpperCase()
+      : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  function loadSidebarProfile() {
+    const savedName = localStorage.getItem("cg_fullname") || "John Doe";
+    const savedInitials =
+      localStorage.getItem("cg_initials") || getInitials(savedName);
+
+    const avatarEl = document.getElementById("sidebarAvatar");
+    const nameEl = document.getElementById("sidebarName");
+
+    if (avatarEl) avatarEl.innerText = savedInitials;
+    if (nameEl) nameEl.innerText = savedName;
+  }
+
+  function goToProfile() {
+    window.location.href = "settings.html#profile";
+  }
+
+  // Run on every page load
+  window.addEventListener("DOMContentLoaded", loadSidebarProfile);
+
+
+  
+
+
+        // Chart Config
+        const ctx = document.getElementById('cleanChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['M', 'T', 'W', 'T', 'F'],
+                datasets: [{
+                    label: 'Issues',
+                    data: [4, 2, 8, 3, 5],
+                    backgroundColor: '#10B981',
+                    borderRadius: 4,
+                    barThickness: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { family: 'Manrope' } } },
+                    y: { border: { display: false }, grid: { color: '#f3f4f6' }, ticks: { stepSize: 2, font: { family: 'Manrope' } } }
+                }
+            }
+        });
+    </script>
+    
+
+</body>
+</html>

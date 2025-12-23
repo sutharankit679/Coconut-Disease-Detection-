@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crop Scan | CoconutGuard AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+              :root {
+                  /* 🎨 THEME */
+                  --primary: #10B981;
+                  --primary-dark: #065F46;
+                  --primary-light: #ECFDF5;
+
+                  --accent-blue: #3B82F6;
+                  --accent-red: #EF4444;
+
+                  --bg-body: #F3F5F7;
+                  --bg-card: #FFFFFF;
+
+                  --text-head: #1F2937;
+                  --text-body: #6B7280;
+                  --border-light: #E5E7EB;
+
+                  /* Spacing & Radius */
+                  --sidebar-width: 260px;
+                  --header-height: 70px;
+                  --radius-xl: 20px;
+                  --radius-lg: 12px;
+
+                  /* Shadows */
+                  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+                  --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+              }
+
+              * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+              body {
+                  font-family: 'Manrope', sans-serif;
+                  background-color: var(--bg-body);
+                  color: var(--text-head);
+                  display: flex;
+                  height: 100vh;
+                  overflow: hidden;
+              }
+
+              /* ------------------------------------------------
+                 1. SIDEBAR (Desktop Fixed, Mobile Drawer)
+              ------------------------------------------------ */
+              .sidebar {
+                  width: var(--sidebar-width);
+                  background: var(--bg-card);
+                  display: flex; flex-direction: column;
+                  padding: 32px 24px;
+                  border-right: 1px solid rgba(0,0,0,0.03);
+                  z-index: 100;
+                  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              }
+
+              .brand {
+                  display: flex; align-items: center; gap: 12px;
+                  margin-bottom: 48px;
+                  color: var(--primary-dark);
+              }
+              .brand-icon {
+                  width: 40px; height: 40px; background: var(--primary-light);
+                  color: var(--primary); border-radius: 12px;
+                  display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
+              }
+              .brand-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+
+              .nav-menu { list-style: none; flex: 1; overflow-y: auto; }
+              .nav-item { margin-bottom: 8px; }
+
+              .nav-link {
+                  display: flex; align-items: center; gap: 14px;
+                  padding: 14px 16px;
+                  color: var(--text-body);
+                  text-decoration: none;
+                  border-radius: var(--radius-lg);
+                  font-weight: 600; font-size: 15px;
+                  transition: all 0.2s ease;
+              }
+
+              .nav-link:hover { background: var(--bg-body); color: var(--text-head); }
+              .nav-link.active { background: var(--primary-light); color: var(--primary-dark); }
+              .nav-link.active i { color: var(--primary); font-weight: bold; }
+
+              .user-profile {
+                  background: var(--bg-body);
+                  padding: 12px; border-radius: var(--radius-lg);
+                  display: flex; align-items: center; gap: 12px;
+                  cursor: pointer; margin-top: auto;
+              }
+              .avatar {
+                  width: 36px; height: 36px; background: #D1FAE5; color: var(--primary-dark);
+                  border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
+              }
+
+              /* Mobile Overlay */
+              .sidebar-overlay {
+                  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
+                  opacity: 0; pointer-events: none; transition: 0.3s;
+              }
+              .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+              /* ------------------------------------------------
+                 2. MAIN CONTENT
+              ------------------------------------------------ */
+              .main-content {
+                  flex: 1;
+                  overflow-y: auto;
+                  overflow-x: hidden;
+                  padding: 32px 40px;
+                  position: relative;
+              }
+
+              /* Header */
+              .header {
+                  display: flex; justify-content: space-between; align-items: center;
+                  margin-bottom: 32px;
+              }
+
+              .mobile-toggle {
+                  display: none; background: none; border: none; font-size: 28px;
+                  color: var(--text-head); cursor: pointer; padding: 0; margin-right: 16px;
+              }
+
+              .header-left { display: flex; align-items: center; }
+
+              .back-link {
+                  text-decoration: none; color: var(--text-body); font-size: 14px; font-weight: 500;
+                  display: flex; align-items: center; gap: 8px; transition: 0.2s;
+              }
+              .back-link:hover { color: var(--primary); }
+
+              .greeting h1 { font-size: 24px; font-weight: 700; color: var(--text-head); letter-spacing: -0.5px; margin-top: 8px; }
+              .greeting p { color: var(--text-body); font-size: 15px; margin-top: 4px; font-weight: 400; }
+
+              .date-badge {
+                  background: white; padding: 8px 16px; border-radius: 100px;
+                  border: 1px solid var(--border-light); color: var(--text-body); font-size: 13px; font-weight: 600;
+                  display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-card);
+              }
+
+              /* ------------------------------------------------
+                 3. SCAN GRID
+              ------------------------------------------------ */
+              .scan-grid {
+                  display: grid;
+                  grid-template-columns: 2fr 1fr; /* Desktop: 66% - 33% */
+                  gap: 32px;
+                  max-width: 1300px;
+                  margin: 0 auto;
+              }
+
+              .left-panel { display: flex; flex-direction: column; gap: 24px; }
+              .right-panel { display: flex; flex-direction: column; gap: 24px; }
+
+              .card {
+                  background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
+                  box-shadow: var(--shadow-card); border: 1px solid rgba(0,0,0,0.02);
+              }
+
+              /* Sensor Tabs */
+              .section-label {
+                  font-size: 12px; font-weight: 600; color: var(--text-body);
+                  text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.8px;
+              }
+
+              .sensor-tabs {
+                  background: #F8FAFC; padding: 6px; border-radius: 16px;
+                  display: flex; gap: 6px; margin-bottom: 24px; border: 1px solid var(--border-light);
+              }
+              .sensor-tab {
+                  flex: 1; padding: 12px; text-align: center; cursor: pointer;
+                  border-radius: 12px; font-size: 14px; font-weight: 500; color: var(--text-body);
+                  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+              }
+              .sensor-tab:hover { background: rgba(255,255,255,0.5); color: var(--text-head); }
+              .sensor-tab.active {
+                  background: white; color: var(--primary-dark); font-weight: 600;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+              }
+              .sensor-tab.active i { color: var(--primary); }
+
+              /* Upload Zone */
+              .upload-zone {
+                  border: 2px dashed var(--border-light); border-radius: var(--radius-xl);
+                  padding: 50px; text-align: center; background: #FAFAFA;
+                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+              }
+              .upload-zone:hover { border-color: var(--primary); background: #F0FDF4; transform: translateY(-1px); }
+              .upload-zone:active { transform: scale(0.98); background: #DCFCE7; }
+
+              .icon-circle {
+                  width: 64px; height: 64px; background: white; border-radius: 50%;
+                  display: grid; place-items: center; font-size: 28px; color: var(--primary);
+                  box-shadow: var(--shadow-card); margin: 0 auto 16px auto;
+              }
+              .upload-title { font-size: 16px; font-weight: 600; color: var(--text-head); margin-bottom: 6px; }
+              .upload-desc { font-size: 13px; color: var(--text-body); max-width: 280px; margin: 0 auto; line-height: 1.5; }
+
+              /* Preview */
+              .preview-container {
+                  display: none; background: #F8FAFC; border-radius: var(--radius-xl);
+                  overflow: hidden; position: relative; height: 400px; width: 100%; border: 1px solid var(--border-light);
+              }
+              .preview-img { width: 100%; height: 100%; object-fit: contain; }
+
+              .preview-actions {
+                  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+                  display: flex; gap: 12px; background: white; padding: 6px; border-radius: 100px;
+                  box-shadow: var(--shadow-float);
+              }
+
+              /* Buttons */
+              .btn-analyze {
+                  width: 100%; padding: 16px; border-radius: 14px;
+                  background: var(--text-head); color: white; border: none;
+                  font-size: 15px; font-weight: 600; cursor: pointer;
+                  display: flex; justify-content: center; align-items: center; gap: 10px;
+                  transition: 0.2s; box-shadow: var(--shadow-card); letter-spacing: 0.3px;
+              }
+              .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; background: #9CA3AF; }
+              .btn-analyze:not(:disabled):hover { background: #111827; transform: translateY(-1px); }
+
+              .btn-icon-soft {
+                  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-light);
+                  background: white; color: var(--text-body); cursor: pointer;
+                  display: grid; place-items: center; font-size: 18px; transition: 0.2s;
+              }
+              .btn-icon-soft:hover { background: #F3F5F7; color: var(--text-head); }
+
+              /* Right Panel */
+              .gps-card { background: white; }
+              .gps-status {
+                  display: inline-flex; align-items: center; gap: 6px;
+                  font-size: 12px; font-weight: 700; color: var(--primary);
+                  background: var(--primary-light); padding: 4px 10px; border-radius: 20px;
+              }
+              .pulse-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 0 2px rgba(16,185,129,0.3); }
+
+              .location-details { margin-top: 16px; background: #F8FAFC; border-radius: 12px; padding: 16px; }
+              .loc-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+              .loc-row:last-child { margin-bottom: 0; }
+              .loc-label { color: var(--text-body); }
+              .loc-val { font-weight: 600; color: var(--text-head); text-align: right; }
+
+              /* Result Card */
+              .result-card { display: none; background: white; overflow: hidden; animation: fadeIn 0.4s ease; padding: 0; }
+              .border-disease { border-top: 5px solid #EF4444; }
+              .border-healthy { border-top: 5px solid #10B981; }
+
+              .res-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+              .badge-disease { background: #FEF2F2; color: #DC2626; }
+              .badge-healthy { background: #ECFDF5; color: #059669; }
+
+              .disease-title { font-size: 20px; font-weight: 800; color: var(--text-head); margin-bottom: 4px; }
+              .res-desc { font-size: 13px; color: var(--text-body); line-height: 1.6; }
+
+              .meta-grid {
+                  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+                  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light);
+              }
+              .meta-item { font-size: 11px; color: var(--text-body); font-weight: 600; text-transform: uppercase; }
+              .meta-val { display: block; font-size: 13px; font-weight: 700; color: var(--text-head); margin-top: 2px; }
+
+              .btn-view-report {
+                  width: 100%; padding: 12px; margin-top: 20px; border-radius: 10px;
+                  background: var(--bg-body); color: var(--text-head); font-weight: 600;
+                  border: none; cursor: pointer; transition: 0.2s; font-size: 13px;
+                  display: flex; justify-content: center; align-items: center; gap: 8px;
+              }
+              .btn-view-report:hover { background: #e5e7eb; }
+
+              @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+              /* ------------------------------------------------
+                 4. RESPONSIVE MEDIA QUERIES (FIXED FOR MOBILE)
+              ------------------------------------------------ */
+
+              /* Tablet & Mobile (<= 1024px) */
+              @media (max-width: 1024px) {
+                  .scan-grid { grid-template-columns: 1fr; }
+                  .right-panel { flex-direction: row; }
+                  .gps-card, .result-card { flex: 1; }
+              }
+
+              /* Mobile Phone (<= 768px) */
+              @media (max-width: 768px) {
+                  /* Layout */
+                  body { flex-direction: column; height: auto; overflow-y:visible; }
+                  .main-content { padding: 20px; overflow: visible; }
+
+
+                  /* Sidebar Drawer */
+                  .sidebar {
+                      position: fixed; top: 0; left: 0; height: 100%; width: 280px;
+                      transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                  }
+                  .sidebar.active { transform: translateX(0); }
+                  .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+                  /* Header - Hiding Back/Date as requested */
+                  .header { align-items: flex-start; margin-bottom: 24px; position: relative; }
+                  .mobile-toggle { display: block; margin-top: 20px; }
+                  .back-link, .date-badge { display: none !important; } /* Hidden on mobile */
+
+                  /* Typography */
+                  .greeting h1 { font-size: 22px; margin-top: 4px; }
+                  .greeting p { font-size: 14px; max-width: 250px; }
+
+                  /* Grid Stack */
+                  .scan-grid { gap: 24px; }
+                  .right-panel { flex-direction: column; }
+
+
+                  /* Component Adjustments */
+                  .sensor-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+                  .sensor-tab { white-space: nowrap; flex-shrink: 0; }
+                  .upload-zone { padding: 40px 20px; }
+                  .preview-container { height: 300px; }
+                  .btn-analyze { padding: 14px; }
+
+
+
+
+                  /* Result Card full width on mobile */
+          .result-card {
+              width: 100%;
+          }
+
+          /* Inner padding thoda balanced */
+          .result-card > div {
+              padding: 20px;
+          }
+
+          /* View Full Report button FIX */
+          .btn-view-report {
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              font-size: 14px;
+              padding: 14px;
+              border-radius: 12px;
+              margin-top: 16px;
+          }
+
+           @media (max-width: 768px) {
+
+          /* STOP equal-height cards on mobile */
+          .gps-card,
+          .result-card {
+              flex: unset !important;
+              height: auto !important;
+          }
+
+      }
+
+      @media (max-width: 768px) {
+
+          .result-card {
+              overflow: visible !important;
+          }
+
+      }
+
+      
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon"><i class="ph-fill ph-plant"></i></div>
+        <span class="brand-text">CoconutGuard</span>
+      </div>
+
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="dashboard.html" class="nav-link">
+            <i class="ph ph-squares-four"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link active">
+            <i class="ph ph-scan"></i> New Analysis
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="reports.html" class="nav-link">
+            <i class="ph ph-chart-line-up"></i> Reports
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="library.html" class="nav-link">
+            <i class="ph ph-book-bookmark"></i> Library
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="settings.html" class="nav-link">
+            <i class="ph ph-gear"></i> Settings
+          </a>
+        </li>
+      </ul>
+
+      <div class="user-profile">
+        <div class="avatar">JD</div>
+        <div style="flex: 1">
+          <div style="font-size: 14px; font-weight: 700">John Doe</div>
+          <div style="font-size: 12px; color: var(--text-body)">
+            Premium User
+          </div>
+        </div>
+        <i class="ph ph-caret-right"></i>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <button class="mobile-toggle" onclick="toggleSidebar()">
+  <i class="ph ph-list"></i>
+</button>
+
+        <div>
+          <h1 class="greeting" style="margin-top: 12px">Crop Scan</h1>
+          <p>AI-powered disease detection & analysis.</p>
+        </div>
+      </header>
+
+      <div class="scan-grid">
+        <div class="left-panel">
+          <div>
+            <div class="section-label">1. Select Sensor</div>
+            <div class="sensor-tabs">
+              <div
+                class="sensor-tab active"
+                id="sensor-rgb"
+                onclick="selectSensor('rgb')"
+              >
+                <i class="ph-fill ph-camera"></i> RGB Camera
+              </div>
+              <div
+                class="sensor-tab"
+                id="sensor-thermal"
+                onclick="selectSensor('thermal')"
+              >
+                <i class="ph-fill ph-thermometer"></i> Thermal
+              </div>
+              <div
+                class="sensor-tab"
+                id="sensor-ndvi"
+                onclick="selectSensor('ndvi')"
+              >
+                <i class="ph-fill ph-plant"></i> NDVI
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 0; overflow: hidden">
+            <div
+              class="upload-zone"
+              id="uploadZone"
+              onclick="document.getElementById('fileInput').click()"
+            >
+              <div class="icon-circle">
+                <i class="ph-fill ph-camera-plus"></i>
+              </div>
+              <div class="upload-title">Capture or Upload Image</div>
+              <p class="upload-desc">
+                Use a clear image of the leaf or stem. <br />Supports JPG, PNG,
+                HEIC.
+              </p>
+              <input
+                type="file"
+                id="fileInput"
+                hidden
+                accept="image"
+                onchange="handleFile(event)"
+              />
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+              <img id="previewImg" class="preview-img" src="" alt="Scan" />
+              <div class="preview-actions">
+                <button
+                  class="btn-icon-soft"
+                  title="Retake"
+                  onclick="resetScan()"
+                >
+                  <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                </button>
+                <button
+                  class="btn-icon-soft"
+                  title="Change"
+                  onclick="document.getElementById('fileInput').click()"
+                >
+                  <i class="ph-bold ph-image"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="btn-analyze"
+            id="analyzeBtn"
+            onclick="runAnalysis()"
+            disabled
+          >
+            <i class="ph-bold ph-scan"></i> Analyze Crop Health
+          </button>
+        </div>
+
+        <div class="right-panel">
+          <div class="card gps-card">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+              "
+            >
+              <div class="section-label" style="margin: 0">
+                Location Context
+              </div>
+              <div class="gps-status" id="gpsStatus">
+                <div class="pulse-dot"></div>
+                <span id="gpsText">Locating...</span>
+              </div>
+            </div>
+
+            <div class="location-details">
+              <div class="loc-row">
+                <span class="loc-label">Region</span>
+                <span class="loc-val" id="locRegion">Detecting...</span>
+              </div>
+              <div class="loc-row">
+                <span class="loc-label">Coordinates</span>
+                <span class="loc-val" id="locCoords">--.--, --.--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card result-card" id="resultCard">
+            <div style="padding: 24px">
+              <div id="resBadge" class="res-badge">--</div>
+
+              <div class="disease-title" id="resTitle">--</div>
+              <p class="res-desc" id="resDesc">--</p>
+
+              <div class="meta-grid">
+                <div class="meta-item">
+                  SCAN ID <span class="meta-val" id="resId">--</span>
+                </div>
+                <div class="meta-item">
+                  YIELD IMPACT <span class="meta-val" id="resImpact">--</span>
+                </div>
+              </div>
+
+             <button
+  class="btn-view-report"
+  id="viewReportBtn"
+  onclick="saveAndRedirect()"
+  disabled
+>
+  View Full Report <i class="ph-bold ph-arrow-right"></i>
+</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+
+   <script>
+    // --- STATE MANAGEMENT ---
+    let state = {
+        imageSrc: null, // Base64 image
+        lat: null,
+        lng: null,
+        region: "Unknown",
+        sensor: 'RGB Camera',
+        scanId: null,
+        diseaseResult: null,
+        confidenceVal: 0,
+        formattedCoords: "--.--, --.--"
+    };
+
+    // --- 1. INITIALIZATION ---
+    window.onload = function() {
+        initLocation();
+    };
+
+    // Helper to format coordinates (e.g. 12.92° N)
+    function formatCoord(value, type) {
+        if (!value) return "--";
+        const val = parseFloat(value);
+        const dir = type === 'lat' 
+            ? (val >= 0 ? 'N' : 'S') 
+            : (val >= 0 ? 'E' : 'W');
+        return `${Math.abs(val).toFixed(2)}° ${dir}`;
+    }
+
+    function initLocation() {
+        const els = {
+            region: document.getElementById('locRegion'),
+            coords: document.getElementById('locCoords'),
+            statusText: document.getElementById('gpsText'),
+            statusDot: document.querySelector('.pulse-dot')
+        };
+
+        // 1. Try fetching Dashboard Data from LocalStorage
+        const dbCity = localStorage.getItem('cg_city');
+        const dbState = localStorage.getItem('cg_state');
+        const dbLat = localStorage.getItem('cg_lat');
+        const dbLng = localStorage.getItem('cg_lng');
+
+        if (dbCity && dbState && dbLat && dbLng) {
+            state.region = `${dbCity}, ${dbState}`;
+            state.lat = dbLat;
+            state.lng = dbLng;
+            state.formattedCoords = `${formatCoord(dbLat, 'lat')}, ${formatCoord(dbLng, 'lng')}`;
+
+            els.region.innerText = state.region;
+            els.coords.innerText = state.formattedCoords;
+            els.statusText.innerText = "Synced"; 
+            if(els.statusDot) els.statusDot.style.background = "#3B82F6"; 
+            return; 
+        }
+
+        // 2. Fallback: Run Live GPS
+        if ("geolocation" in navigator) {
+            els.statusText.innerText = "Locating...";
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    state.lat = pos.coords.latitude;
+                    state.lng = pos.coords.longitude;
+                    state.region = "Detected Location"; 
+                    state.formattedCoords = `${formatCoord(state.lat, 'lat')}, ${formatCoord(state.lng, 'lng')}`;
+                    els.coords.innerText = state.formattedCoords;
+                    els.region.innerText = state.region;
+                    els.statusText.innerText = "Live GPS";
+                },
+                (err) => {
+                    console.warn("GPS Error", err);
+                    els.statusText.innerText = "No Signal";
+                }
+            );
+        } else {
+            els.statusText.innerText = "Unsupported";
+        }
+    }
+
+    // --- 2. SENSOR SELECTION ---
+    function selectSensor(type) {
+        document.querySelectorAll('.sensor-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('sensor-' + type).classList.add('active');
+        
+        const map = { 'rgb': 'RGB Camera', 'thermal': 'Thermal', 'ndvi': 'NDVI' };
+        state.sensor = map[type] || 'RGB Camera';
+    }
+
+    // --- 3. MOCK AI VALIDATION ---
+    /**
+     * Mock function to simulate server-side or local ML model checking if image is a coconut tree.
+     * Logic: Uses filename keywords for deterministic testing, else falls back to random probability.
+     */
+    async function validateCoconutImage(file) {
+        return new Promise((resolve) => {
+            // Simulate processing delay
+            setTimeout(() => {
+                const name = file.name.toLowerCase();
+                const validKeywords = ['coconut', 'palm', 'leaf', 'tree', 'crown', 'trunk', 'fruit', 'scan', 'img'];
+                const invalidKeywords = ['car', 'cat', 'dog', 'person', 'building', 'selfie'];
+
+                let confidence = 0.5; // Default ambiguous
+
+                // 1. Check for "obvious" valid keywords (Mocking High Confidence)
+                if (validKeywords.some(k => name.includes(k))) {
+                    confidence = 0.85 + (Math.random() * 0.14); // 0.85 - 0.99
+                }
+                // 2. Check for "obvious" invalid keywords (Mocking Low Confidence)
+                else if (invalidKeywords.some(k => name.includes(k))) {
+                    confidence = 0.1 + (Math.random() * 0.2); // 0.1 - 0.3
+                }
+                // 3. Random fallback
+                else {
+                    confidence = Math.random(); 
+                }
+
+                // Threshold check (e.g., must be > 65% confident it's a coconut tree)
+                const isValid = confidence > 0.65;
+                resolve({ isValid, confidence });
+            }, 800);
+        });
+    }
+
+    // --- 4. ERROR UI HANDLING ---
+    function renderError(msg) {
+        // Look for existing error box or create one dynamically
+        let errBox = document.getElementById('js-validation-error');
+        const uploadZone = document.getElementById('uploadZone');
+
+        if (!errBox) {
+            errBox = document.createElement('div');
+            errBox.id = 'js-validation-error';
+            // Styling to match theme (Warning Red)
+            errBox.style.marginTop = '16px';
+            errBox.style.padding = '12px';
+            errBox.style.background = '#FEF2F2';
+            errBox.style.border = '1px solid #FECACA';
+            errBox.style.borderRadius = '12px';
+            errBox.style.color = '#B91C1C';
+            errBox.style.fontSize = '13px';
+            errBox.style.fontWeight = '600';
+            errBox.style.display = 'flex';
+            errBox.style.alignItems = 'center';
+            errBox.style.gap = '8px';
+            errBox.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:18px;"></i> <span></span>';
+            
+            // Insert inside upload zone at the bottom
+            uploadZone.appendChild(errBox);
+        }
+
+        errBox.querySelector('span').innerText = msg;
+        errBox.style.display = 'flex';
+        
+        // Shake animation for visibility
+        uploadZone.animate([
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(-4px)' },
+            { transform: 'translateX(4px)' },
+            { transform: 'translateX(0)' }
+        ], { duration: 300 });
+    }
+
+    function clearError() {
+        const errBox = document.getElementById('js-validation-error');
+        if (errBox) errBox.style.display = 'none';
+    }
+
+    // --- 5. FILE HANDLING ---
+    async function handleFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // A. File Type Validation
+        if (!file.type.match('image.*')) {
+            renderError("Invalid file type. Please upload a JPG or PNG image.");
+            e.target.value = ''; // Reset input
+            return;
+        }
+
+        clearError();
+
+        // UI: Show loading state text
+        const titleEl = document.querySelector('.upload-title');
+        const originalTitle = titleEl.innerText;
+        titleEl.innerText = "Verifying Image Content...";
+        titleEl.style.color = "#3B82F6"; // Blue for processing
+
+        // B. Coconut Content Validation
+        try {
+            const validation = await validateCoconutImage(file);
+
+            if (!validation.isValid) {
+                // REJECT
+                renderError("Invalid Image. Please upload a coconut tree part (leaf, trunk, fruit).");
+                titleEl.innerText = originalTitle;
+                titleEl.style.color = ""; 
+                e.target.value = ''; // Reset input
+                return;
+            }
+
+            // C. Success - Load Preview
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                state.imageSrc = evt.target.result;
+                document.getElementById('previewImg').src = state.imageSrc;
+                
+                // Toggle UI
+                document.getElementById('uploadZone').style.display = 'none';
+                document.getElementById('previewContainer').style.display = 'block';
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('resultCard').style.display = 'none';
+                document.getElementById('viewReportBtn').disabled = true;
+
+                // Reset Text
+                titleEl.innerText = originalTitle;
+                titleEl.style.color = ""; 
+            };
+            reader.readAsDataURL(file);
+
+        } catch (err) {
+            console.error("Validation Error", err);
+            renderError("Unable to validate image. Please try again.");
+            titleEl.innerText = originalTitle;
+            titleEl.style.color = "";
+        }
+    }
+
+    function resetScan() {
+        document.getElementById('fileInput').value = '';
+        document.getElementById('uploadZone').style.display = 'block';
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('analyzeBtn').disabled = true;
+        document.getElementById('resultCard').style.display = 'none';
+        state.imageSrc = null;
+        clearError();
+    }
+
+    // --- 6. ANALYZE LOGIC ---
+    function runAnalysis() {
+        const btn = document.getElementById('analyzeBtn');
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Processing...';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            // Mock AI Result
+            const isDisease = Math.random() > 0.4;
+            
+            const randomId = Math.floor(10000 + Math.random() * 90000);
+            state.scanId = `#SC-${randomId}`;
+
+            state.diseaseResult = isDisease ? "Leaf Blight" : "Healthy";
+            state.confidenceVal = Math.floor(Math.random() * (99 - 90) + 90);
+
+            document.getElementById('resId').innerText = state.scanId;
+            const card = document.getElementById('resultCard');
+            const badge = document.getElementById('resBadge');
+            const viewBtn = document.getElementById('viewReportBtn');
+
+            if (isDisease) {
+                card.className = "card result-card border-disease";
+                badge.className = "res-badge badge-disease";
+                badge.innerText = `${state.confidenceVal}% Confidence`;
+                
+                document.getElementById('resTitle').innerText = "Leaf Blight Detected";
+                document.getElementById('resDesc').innerText = "Fungal infection spots visible. Immediate isolation recommended.";
+                document.getElementById('resImpact').innerText = "~15% Yield Loss";
+                document.getElementById('resImpact').style.color = "#DC2626";
+            } else {
+                card.className = "card result-card border-healthy";
+                badge.className = "res-badge badge-healthy";
+                badge.innerText = `${state.confidenceVal}% Confidence`;
+                
+                document.getElementById('resTitle').innerText = "Healthy Crop";
+                document.getElementById('resDesc').innerText = "No visible signs of disease. Plant appears vibrant.";
+                document.getElementById('resImpact').innerText = "Optimal Yield";
+                document.getElementById('resImpact').style.color = "#059669";
+            }
+
+            card.style.display = 'block';
+            card.scrollIntoView({ behavior: 'smooth' });
+            viewBtn.disabled = false;
+
+        }, 1500);
+    }
+
+    // --- 7. SAVE & REDIRECT ---
+    function saveAndRedirect() {
+        if (!state.scanId) return;
+
+        const scanReport = {
+            id: state.scanId,
+            disease: state.diseaseResult,
+            status: state.diseaseResult === "Healthy" ? "Healthy" : "Diseased",
+            confidence: state.confidenceVal,
+            image: state.imageSrc,
+            location: state.region,
+            coords: state.formattedCoords,
+            sensor: state.sensor,
+            timestamp: Date.now()
+        };
+
+        const STORAGE_KEY = 'cg_scan_history';
+        let history = [];
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) history = JSON.parse(raw);
+        } catch (e) {
+            console.error("Storage error", e);
+            history = [];
+        }
+
+        history.unshift(scanReport);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+        window.location.href = 'reports.html?latest=true';
+    }
+
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('active');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+</script>
+    
+</body>
+</html>

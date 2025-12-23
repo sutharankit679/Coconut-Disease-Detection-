@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Disease Library | CoconutGuard AI</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            /* 🎨 THEME PRESERVED */
+            --primary: #10B981;
+            --primary-dark: #065F46;
+            --primary-light: #ECFDF5;
+            
+            --accent-blue: #3B82F6;
+            --accent-orange: #F97316;
+            --accent-red: #EF4444;
+            --accent-purple: #8B5CF6;
+            
+            --bg-body: #F3F5F7;
+            --bg-card: #FFFFFF;
+            
+            --text-head: #1F2937;
+            --text-body: #6B7280;
+            --border-light: #E5E7EB;
+
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            --radius-xl: 20px;
+            --radius-lg: 12px;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-head);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ------------------------------------------------
+           1. RESPONSIVE SIDEBAR
+        ------------------------------------------------ */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            display: flex; flex-direction: column;
+            padding: 32px 24px;
+            border-right: 1px solid rgba(0,0,0,0.03);
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .brand {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 48px;
+            color: var(--primary-dark);
+        }
+        .brand-icon { 
+            width: 40px; height: 40px; background: var(--primary-light); 
+            color: var(--primary); border-radius: 12px; 
+            display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
+        }
+        .brand-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+
+        .nav-menu { list-style: none; flex: 1; overflow-y: auto; }
+        .nav-item { margin-bottom: 8px; }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px;
+            color: var(--text-body);
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600; font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover { background: var(--bg-body); color: var(--text-head); }
+        .nav-link.active { 
+            background: #ECFDF5; color: var(--primary-dark); 
+        }
+        .nav-link.active i { color: var(--primary); font-weight: bold; }
+
+        .user-profile {
+            background: var(--bg-body);
+            padding: 12px; border-radius: var(--radius-lg);
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer; margin-top: auto;
+        }
+        .avatar {
+            width: 36px; height: 36px; background: #D1FAE5; color: var(--primary-dark);
+            border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+        /* ------------------------------------------------
+           2. MAIN CONTENT
+        ------------------------------------------------ */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 32px 40px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        
+        .mobile-toggle { 
+            display: none; background: none; border: none; font-size: 28px; 
+            color: var(--text-head); cursor: pointer; padding: 4px;
+        }
+
+        .greeting h1 { font-size: 26px; font-weight: 800; color: var(--text-head); letter-spacing: -0.5px; line-height: 1.2; }
+        .greeting p { color: var(--text-body); font-size: 15px; margin-top: 4px; }
+
+        .btn-action {
+            padding: 10px 20px; border-radius: 100px;
+            font-size: 13px; font-weight: 700; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-outline { background: white; border: 1px solid var(--border-light); color: var(--text-head); }
+        .btn-outline:hover { background: var(--bg-body); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-card); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+        /* ------------------------------------------------
+           VIEW 1: LIBRARY LIST
+        ------------------------------------------------ */
+        #libraryListView { display: block; animation: fadeIn 0.4s ease; padding-bottom: 60px; }
+
+        /* Filter Toolbar */
+        .filter-row {
+            display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; align-items: center;
+        }
+        .search-box {
+            flex: 2; background: white; border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+            min-width: 250px;
+        }
+        .search-box input { border: none; outline: none; width: 100%; font-family: inherit; font-size: 14px; background: transparent; }
+        
+        .filter-select {
+            flex: 1; background: white; border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 12px 16px; font-family: inherit; font-size: 13px; font-weight: 600;
+            color: var(--text-head); outline: none; cursor: pointer; min-width: 140px;
+        }
+        .filter-select:hover { border-color: var(--primary); }
+
+        /* Grid */
+        .library-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 24px;
+        }
+
+        .disease-card {
+            background: white; border-radius: var(--radius-xl); padding: 0;
+            box-shadow: var(--shadow-card); border: 1px solid transparent; cursor: pointer;
+            transition: all 0.2s; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .disease-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-float); border-color: var(--primary-light); }
+
+        .dc-image-box {
+            height: 180px; width: 100%; position: relative;
+            background: #F3F4F6;
+        }
+        .dc-img { width: 100%; height: 100%; object-fit: cover; }
+        .dc-type-badge {
+            position: absolute; top: 12px; right: 12px;
+            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dc-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        .dc-title { font-size: 18px; font-weight: 800; color: var(--text-head); margin-bottom: 8px; }
+        
+        .dc-meta { 
+            display: flex; gap: 12px; font-size: 12px; color: var(--text-body); font-weight: 600; margin-bottom: 12px;
+        }
+        .dc-meta i { color: var(--primary); font-size: 14px; margin-right: 4px; vertical-align: -2px; }
+
+        .dc-desc { 
+            font-size: 13px; color: var(--text-body); line-height: 1.6; 
+            margin-bottom: 20px; flex-grow: 1; 
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        .dc-footer { 
+            border-top: 1px solid var(--border-light); padding-top: 16px; margin-top: auto;
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .view-link { font-size: 13px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+
+        /* Badge Colors */
+        .type-fungal { background: #FFF7ED; color: #9A3412; }
+        .type-pest { background: #FEF2F2; color: #DC2626; }
+        .type-bacterial { background: #F3E8FF; color: #7E22CE; }
+        
+        /* ------------------------------------------------
+           VIEW 2: DISEASE DETAIL
+        ------------------------------------------------ */
+        #diseaseDetailView { display: none; animation: slideUp 0.4s ease; padding-bottom: 60px; }
+
+        /* Detail Layout - Responsive */
+        .detail-layout {
+            display: grid; 
+            grid-template-columns: 1fr 340px; 
+            gap: 32px;
+            align-items: start;
+        }
+
+        /* Content Area */
+        .content-card {
+            background: white; border-radius: var(--radius-xl); padding: 32px;
+            box-shadow: var(--shadow-card); margin-bottom: 24px;
+        }
+        
+        .detail-header { border-bottom: 1px solid var(--border-light); padding-bottom: 24px; margin-bottom: 24px; }
+        .dh-meta { display: flex; gap: 12px; margin-bottom: 12px; }
+        .dh-title { font-size: 32px; font-weight: 800; color: var(--text-head); margin-bottom: 8px; line-height: 1.2; }
+        .dh-desc { font-size: 15px; color: var(--text-body); line-height: 1.6; max-width: 90%; }
+
+        .section-title {
+            font-size: 16px; font-weight: 700; color: var(--text-head); 
+            margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Visual Examples Grid */
+        .visual-examples {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px;
+        }
+        .ve-box { position: relative; border-radius: 12px; overflow: hidden; height: 250px; border: 1px solid var(--border-light); }
+        .ve-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .ve-box:hover .ve-img { transform: scale(1.05); }
+        .ve-label { 
+            position: absolute; bottom: 0; left: 0; right: 0; 
+            background: rgba(0,0,0,0.6); color: white; 
+            font-size: 11px; padding: 8px; font-weight: 600;
+        }
+
+        /* Lists */
+        .info-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+        .info-item {
+            display: flex; gap: 12px; align-items: start; font-size: 14px; line-height: 1.6; color: var(--text-head);
+        }
+        .bullet-icon { color: var(--primary); font-size: 18px; margin-top: 2px; flex-shrink: 0; }
+
+        /* Treatments */
+        .treatment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .treat-col { background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border-light); }
+        
+        /* Sidebar Info */
+        .info-box {
+            background: white; border-radius: var(--radius-xl); padding: 24px;
+            box-shadow: var(--shadow-card); border: 1px solid var(--border-light); margin-bottom: 24px;
+        }
+        
+        .impact-stat { margin-bottom: 16px; }
+        .is-label { font-size: 12px; font-weight: 600; color: var(--text-body); text-transform: uppercase; }
+        .is-val { font-size: 16px; font-weight: 800; color: var(--text-head); margin-top: 2px; }
+        .val-high { color: #DC2626; }
+        .val-med { color: #F97316; }
+
+        .ai-note {
+            background: #ECFDF5; border: 1px solid #A7F3D0; padding: 16px; border-radius: 12px;
+            font-size: 12px; color: #065F46; line-height: 1.5; display: flex; gap: 10px; align-items: start;
+        }
+
+        .cta-box { display: flex; flex-direction: column; gap: 12px; }
+        .btn-full { width: 100%; justify-content: center; padding: 14px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ------------------------------------------------
+           3. RESPONSIVE MEDIA QUERIES (CRITICAL)
+        ------------------------------------------------ */
+        
+        /* Tablet & Mobile (<= 1024px) */
+        @media (max-width: 1024px) {
+            /* Sidebar becomes Drawer */
+            .sidebar {
+                position: fixed; top: 0; left: 0; height: 100%; width: 280px;
+                transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            .sidebar.active { transform: translateX(0); }
+            
+            .main-content { padding: 24px; }
+            
+            /* Detail View Reflow */
+            .detail-layout { grid-template-columns: 1fr; }
+            .content-card { padding: 24px; }
+            .visual-examples { height: auto; }
+            
+            /* Sidebar content moves to bottom */
+            .detail-layout > div:last-child {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+            }
+        }
+
+        /* Mobile Phone (<= 768px) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .main-content { padding: 20px 16px; overflow: visible; }
+            
+            /* Header */
+            .header { margin-bottom: 24px; }
+            .header-left { width: 100%; }
+            .mobile-toggle { display: block; margin-right: 12px; }
+            .greeting h1 { font-size: 22px; }
+            .greeting p { font-size: 14px; }
+            
+            /* Filters Stack */
+            .filter-row { flex-direction: column; gap: 12px; align-items: stretch; }
+            .search-box, .filter-select { width: 100%; min-width: 0; }
+            
+            /* Library Grid */
+            .library-grid { grid-template-columns: 1fr; }
+            
+            /* Detail View Mobile */
+            .dh-title { font-size: 24px; }
+            .visual-examples { grid-template-columns: 1fr; }
+            .ve-box { height: 200px; }
+            .treatment-grid { grid-template-columns: 1fr; }
+            
+            /* Bottom Cards Stack */
+            .detail-layout > div:last-child { grid-template-columns: 1fr; }
+            
+            /* Buttons */
+            .btn-action { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="ph-fill ph-plant"></i></div>
+            <span class="brand-text">CoconutGuard</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="dashboard.html" class="nav-link"><i class="ph ph-squares-four"></i> Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="scan.html" class="nav-link"><i class="ph ph-scan"></i> New Analysis</a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link"><i class="ph ph-chart-line-up"></i> Reports</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link active"><i class="ph ph-book-bookmark"></i> Library</a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link"><i class="ph ph-gear"></i> Settings</a>
+            </li>
+        </ul>
+        <div class="user-profile" id="sidebarProfile" onclick="goToProfile()">
+    <div class="avatar" id="sidebarAvatar">JD</div>
+    <div style="flex:1;">
+        <div id="sidebarName" style="font-size:14px; font-weight:700;">
+            John Doe
+        </div>
+        <div style="font-size:12px; color:var(--text-body);">
+            Premium User
+        </div>
+    </div>
+</div>
+
+    </aside>
+
+    <main class="main-content">
+        
+        <header class="header">
+            <div class="header-left">
+                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="ph ph-list"></i></button>
+                <div id="headerTitle">
+                    <h1 class="greeting">Disease Library</h1>
+                    <p>Comprehensive knowledge base for coconut crop health.</p>
+                </div>
+            </div>
+            <div id="headerActions" style="display: none;">
+                <button class="btn-action btn-outline" onclick="showLibrary()"><i class="ph-bold ph-arrow-left"></i> Back</button>
+            </div>
+        </header>
+
+        <section id="libraryListView">
+            
+            <div class="filter-row">
+                <div class="search-box">
+                    <i class="ph-bold ph-magnifying-glass" style="color:var(--text-body);"></i>
+                    <input type="text" placeholder="Search disease name..." id="searchInput">
+                </div>
+                
+                <select class="filter-select" id="typeFilter">
+                    <option value="All">All Types</option>
+                    <option value="Fungal">Fungal</option>
+                    <option value="Bacterial">Bacterial</option>
+                    <option value="Pest">Pest</option>
+                </select>
+                
+                <select class="filter-select" id="sevFilter">
+                    <option value="All">Severity</option>
+                    <option value="High">High</option>
+                    <option value="Moderate">Moderate</option>
+                </select>
+            </div>
+
+            <div class="library-grid" id="libraryGrid">
+                </div>
+
+        </section>
+
+        <section id="diseaseDetailView">
+            <div class="detail-layout">
+                
+                <div>
+                    <div class="content-card">
+                        <div class="detail-header">
+                            <div class="dh-meta">
+                                <span class="type-badge" id="dd_type_badge" style="padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">--</span>
+                                <span class="type-badge" style="background:#F3F4F6; color:#374151; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;" id="dd_part">--</span>
+                            </div>
+                            <h2 class="dh-title" id="dd_name">--</h2>
+                            <p class="dh-desc" id="dd_desc">--</p>
+                        </div>
+
+                        <div class="section-title"><i class="ph-fill ph-image" style="color:var(--accent-blue);"></i> Visual Symptoms</div>
+                        <div class="visual-examples" id="dd_images"></div>
+
+                        <div class="treatment-grid">
+                            <div>
+                                <div class="section-title"><i class="ph-fill ph-eye" style="color:var(--accent-orange);"></i> Key Symptoms</div>
+                                <ul class="info-list" id="dd_symptoms"></ul>
+                            </div>
+                            <div>
+                                <div class="section-title"><i class="ph-fill ph-microscope" style="color:var(--accent-blue);"></i> Primary Causes</div>
+                                <ul class="info-list" id="dd_causes"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="section-title"><i class="ph-fill ph-first-aid-kit" style="color:var(--accent-red);"></i> Treatment Protocol</div>
+                        <div class="treatment-grid">
+                            <div class="treat-col">
+                                <h4 style="font-size:13px; font-weight:700; margin-bottom:12px; text-transform:uppercase;">Immediate Action</h4>
+                                <ul class="info-list" id="dd_immediate"></ul>
+                            </div>
+                            <div class="treat-col">
+                                <h4 style="font-size:13px; font-weight:700; margin-bottom:12px; text-transform:uppercase;">Prevention</h4>
+                                <ul class="info-list" id="dd_prevention"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="info-box">
+                        <div class="section-title">Analysis</div>
+                        <div class="impact-stat">
+                            <div class="is-label">Severity Level</div>
+                            <div class="is-val" id="dd_severity">--</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="is-label">Spread Risk</div>
+                            <div class="is-val" id="dd_risk">--</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="is-label">Yield Impact</div>
+                            <div class="is-val val-high" id="dd_yield">--</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="padding: 16px;">
+                        <div class="ai-note">
+                            <i class="ph-fill ph-brain" style="font-size: 20px;"></i>
+                            <div>
+                                <strong>AI Compatible</strong><br>
+                                CoconutGuard AI can detect this disease with >90% accuracy.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cta-box">
+                        <button class="btn-action btn-primary btn-full" onclick="window.location.href='scan.html'">
+                            <i class="ph-bold ph-camera"></i> Scan for this Disease
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- MOBILE MENU ---
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('sidebar').contains(e.target) && !document.querySelector('.mobile-toggle').contains(e.target)) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
+            }
+        });
+
+        // --- DATASET ---
+        const libraryData = [
+            {
+                name: "Leaf Blight",
+                type: "Fungal",
+                part: "Leaf",
+                severity: "Moderate",
+                img: "https://apps.lucidcentral.org/pppw_v11/images/entities/coconut_seedling_blight_075/bipolaris.jpg", 
+                visuals: [
+                    { url: "https://apps.lucidcentral.org/pppw_v11/images/entities/coconut_seedling_blight_075/bipolaris.jpg", caption: "Necrotic Lesions on Leaflet" },
+                    { url: "https://goodhands.lk/wp-content/uploads/2023/06/image-1.png", caption: "Advanced Stage Spreading" }
+                ],
+                desc: "A common fungal infection causing necrotic lesions starting from leaf tips, leading to reduced photosynthesis and drying of fronds.",
+                symptoms: ["Greyish-brown necrotic spots on leaflets.", "Lesions start at tip and spread inwards.", "Dried appearance of lower fronds."],
+                causes: ["Pathogen: Lasiodiplodia theobromae.", "High humidity conditions.", "Poor soil drainage."],
+                immediate: ["Prune infected leaves", "Apply 1% Bordeaux mixture"],
+                prevention: ["Improve air circulation", "Apply Potash fertilizer"],
+                impact: { spread: "Medium", yield: "10-15% Loss" },
+                badgeClass: "type-fungal",
+                sevColor: "#F59E0B"
+            },
+            {
+                name: "Lethal Yellowing",
+                type: "Bacterial",
+                part: "Fronds/Nut",
+                severity: "High",
+                img: "https://palmtreedr.com/blog/wp-content/uploads/2013/12/18d.jpg",
+                visuals: [
+                    { url: "https://palmtreedr.com/blog/wp-content/uploads/2013/12/18d.jpg", caption: "Yellowing of Lower Fronds" },
+                    { url: "https://www.cphdforum.org/wp-content/uploads/2015/06/LethalYellowingCoconutSymptom.jpg", caption: "Crown Collapse" }
+                ],
+                desc: "A systemic disease caused by phytoplasmas that results in the yellowing of fronds, premature nut fall, and eventual death of the palm.",
+                symptoms: ["Premature dropping of nuts", "Blackening of inflorescence", "Yellowing of lower fronds spreading upwards"],
+                causes: ["Pathogen: Phytoplasma", "Vector: Planthopper (Haplaxius crudus)"],
+                immediate: ["Inject Oxytetracycline HCl", "Remove infected palms immediately"],
+                prevention: ["Plant resistant varieties (e.g., Malayan Dwarf)", "Control vector population"],
+                impact: { spread: "High", yield: "100% Loss (Death)" },
+                badgeClass: "type-bacterial",
+                sevColor: "#DC2626"
+            },
+            {
+                name: "Root Wilt",
+                type: "Bacterial",
+                part: "Root/Leaf",
+                severity: "High",
+                img: "https://parachutekalpavriksha.org/cdn/shop/articles/36.03.jpg?v=1742539982&width=1500",
+                visuals: [
+                    { url: "https://parachutekalpavriksha.org/cdn/shop/articles/36.03.jpg?v=1742539982&width=1500", caption: "Flaccidity & Ribbing" },
+                    { url: "https://cpcri.gov.in/images/Crop_Protection/3.jpg", caption: "Stunted Palm Growth" }
+                ],
+                desc: "A debilitating disease characterized by the flaccidity of leaflets and general yellowing, leading to significant yield loss over time.",
+                symptoms: ["Flaccidity/Bending of leaflets (Ribbing)", "Yellowing of older leaves", "Stunted growth and marginal necrosis"],
+                causes: ["Pathogen: Phytoplasma", "Vector: Lace bug / Plant hopper", "Poor soil health exacerbates"],
+                immediate: ["Apply fertilizers (Mg, Bo)", "Remove severely infected trees"],
+                prevention: ["Cultivate resistant hybrids", "Maintain optimal soil nutrients", "Bio-control of vectors"],
+                impact: { spread: "Slow but Persistent", yield: "30-50% Loss" },
+                badgeClass: "type-bacterial",
+                sevColor: "#DC2626"
+            },
+            {
+                name: "Bud Rot",
+                type: "Fungal",
+                part: "Bud/Heart",
+                severity: "High",
+                img: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_bud_rot_140/seedlingrotvan1.jpg",
+                visuals: [
+                    { url: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_bud_rot_140/seedlingrotvan1.jpg",  },
+                    { url: "https://ars.els-cdn.com/content/image/1-s2.0-S2352340923007692-fx1.jpg" }
+                ],
+                desc: "A lethal disease affecting the heart leaf and crown. It causes rotting of the soft tissues and can kill the palm if not treated early.",
+                symptoms: ["Yellowing of younger leaves", "Foul smell from the crown", "Rotting of the heart leaf"],
+                causes: ["Pathogen: Phytophthora palmivora", "Monsoon season / High moisture", "Close planting density"],
+                immediate: ["Remove infected crown tissues", "Apply Copper Oxychloride paste"],
+                prevention: ["Prophylactic fungicide spray", "Field sanitation"],
+                impact: { spread: "High", yield: "Total Loss if Untreated" },
+                badgeClass: "type-fungal",
+                sevColor: "#DC2626"
+            },
+            {
+                name: "Stem Bleeding",
+                type: "Fungal",
+                part: "Stem/Trunk",
+                severity: "Moderate",
+                img: "https://www.researchgate.net/profile/Omkar-Singh-19/publication/391520129/figure/fig4/AS:11431281427195792@1746618843674/Stem-Bleeding-of-Coconut_Q320.jpg",
+                visuals: [
+                    { url: "https://i.ytimg.com/vi/b05UBO0m0fw/sddefault.jpg?v=65fd6268", caption: "Reddish-brown Oozing" },
+                    { url: "https://www.researchgate.net/profile/Omkar-Singh-19/publication/391520129/figure/fig4/AS:11431281427195792@1746618843674/Stem-Bleeding-of-Coconut_Q320.jpg", caption: "Basal Trunk Lesions" }
+                ],
+                desc: "Characterized by the exudation of a reddish-brown liquid from the trunk cracks, leading to trunk decay.",
+                symptoms: ["Reddish-brown fluid oozing from trunk", "Hollowing of the stem base", "Reduced nut size"],
+                causes: ["Pathogen: Thielaviopsis paradoxa", "Water stress or salinity", "Physical injury to trunk"],
+                immediate: ["Chisel out affected tissues", "Apply coal tar or Bordeaux paste"],
+                prevention: ["Avoid trunk injuries", "Balanced nutrition (Neem cake)"],
+                impact: { spread: "Low", yield: "Gradual Decline" },
+                badgeClass: "type-fungal",
+                sevColor: "#F59E0B"
+            },
+            {
+                name: "Rhinoceros Beetle",
+                type: "Pest",
+                part: "Leaf/Crown",
+                severity: "Medium",
+                img: "https://agritech.tnau.ac.in/crop_protection/images/coconut_pest/1.rhinobeetle_symp3.JPG",
+                visuals: [
+                    { url: "https://agritech.tnau.ac.in/crop_protection/images/coconut_pest/1.rhinobeetle_symp3.JPG", caption: "Adult Beetle" },
+                    { url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjdAGsyGOsy06idLFHbA8-DaJZyTv7Yx64y9H8iMEW_WMo_vWk1uvX67VMb6nYPUaFz00&usqp=CAU", caption: "V-Shaped Geometric Cuts" }
+                ],
+                desc: "A major pest that bores into the unopened fronds, causing V-shaped cuts and damage to the crown.",
+                symptoms: ["V-shaped geometric cuts on leaves", "Holes in leaf base", "Fibrous chews in crown"],
+                causes: ["Pest: Oryctes rhinoceros", "Breeding sites in manure pits", "Decaying logs nearby"],
+                immediate: ["Use beetle hooks to remove", "Apply naphthalene balls"],
+                prevention: ["Netting of manure pits", "Pheromone traps"],
+                impact: { spread: "High", yield: "10-20% Loss" },
+                badgeClass: "type-pest",
+                sevColor: "#F59E0B"
+            }
+
+
+        ];
+
+        // --- INIT ---
+        document.addEventListener("DOMContentLoaded", () => {
+            renderLibrary(libraryData);
+            
+            document.getElementById('searchInput').addEventListener('keyup', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = libraryData.filter(d => d.name.toLowerCase().includes(term));
+                renderLibrary(filtered);
+            });
+        });
+
+        // --- RENDER ---
+        function renderLibrary(data) {
+            const grid = document.getElementById('libraryGrid');
+            grid.innerHTML = "";
+            
+            if(data.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#6B7280;">No results found.</div>';
+                return;
+            }
+
+            data.forEach((item, index) => {
+                // Find original index for click handler
+                const originalIdx = libraryData.indexOf(item);
+                const card = document.createElement('div');
+                card.className = "disease-card";
+                card.onclick = () => openDetail(originalIdx);
+                
+                card.innerHTML = `
+                    <div class="dc-image-box">
+                        <img src="${item.img}" class="dc-img" alt="${item.name}">
+                        <span class="dc-type-badge ${item.badgeClass}">${item.type}</span>
+                    </div>
+                    <div class="dc-body">
+                        <div class="dc-title">${item.name}</div>
+                        <div class="dc-meta">
+                            <span><i class="ph-bold ph-tree-palm"></i> ${item.part}</span>
+                            <span><i class="ph-bold ph-warning-circle"></i> <span style="color:${item.sevColor}">${item.severity}</span></span>
+                        </div>
+                        <p class="dc-desc">${item.desc}</p>
+                        <div class="dc-footer">
+                            <span class="view-link">Read Guide <i class="ph-bold ph-arrow-right"></i></span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+
+         function getInitials(name) {
+    if (!name) return "JD";
+    const parts = name.split(" ").filter(p => p.length);
+    return parts.length === 1
+      ? parts[0][0].toUpperCase()
+      : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  function loadSidebarProfile() {
+    const savedName = localStorage.getItem("cg_fullname") || "John Doe";
+    const savedInitials =
+      localStorage.getItem("cg_initials") || getInitials(savedName);
+
+    const avatarEl = document.getElementById("sidebarAvatar");
+    const nameEl = document.getElementById("sidebarName");
+
+    if (avatarEl) avatarEl.innerText = savedInitials;
+    if (nameEl) nameEl.innerText = savedName;
+  }
+
+  function goToProfile() {
+    window.location.href = "settings.html#profile";
+  }
+
+  // Run on every page load
+  window.addEventListener("DOMContentLoaded", loadSidebarProfile);
+
+
+
+        // --- DETAIL VIEW ---
+        function openDetail(index) {
+            const item = libraryData[index];
+
+            document.getElementById('libraryListView').style.display = 'none';
+            document.getElementById('diseaseDetailView').style.display = 'block';
+            document.getElementById('headerActions').style.display = 'block';
+            document.getElementById('headerTitle').innerHTML = `<h1>${item.name}</h1>`;
+
+            document.getElementById('dd_name').innerText = item.name;
+            document.getElementById('dd_desc').innerText = item.desc;
+            
+            const badge = document.getElementById('dd_type_badge');
+            badge.innerText = item.type;
+            badge.className = `type-badge ${item.badgeClass}`;
+            
+            document.getElementById('dd_part').innerText = "Affected: " + item.part;
+
+            document.getElementById('dd_images').innerHTML = item.visuals.map(v => `
+                <div class="ve-box">
+                    <img src="${v.url}" class="ve-img" alt="Example">
+                    <div class="ve-label">${v.caption}</div>
+                </div>
+            `).join('');
+
+            const createList = (id, arr, icon) => {
+                document.getElementById(id).innerHTML = arr.map(txt => `
+                    <li class="info-item"><i class="ph-fill ${icon} bullet-icon"></i> ${txt}</li>
+                `).join('');
+            };
+
+            createList('dd_symptoms', item.symptoms, 'ph-circle');
+            createList('dd_causes', item.causes, 'ph-caret-right');
+            createList('dd_immediate', item.immediate, 'ph-check-circle');
+            createList('dd_prevention', item.prevention, 'ph-shield-check');
+
+            document.getElementById('dd_severity').innerText = item.severity;
+            document.getElementById('dd_severity').style.color = item.sevColor;
+           
+            // Handle color for severity
+            const sevEl = document.getElementById('dd_severity');
+            sevEl.className = item.severity === "High" ? "info-val high" : (item.severity === "Moderate" ? "info-val val-med" : "info-val");
+
+            document.getElementById('dd_risk').innerText = item.impact.spread;
+            document.getElementById('dd_yield').innerText = item.impact.yield;
+
+            window.scrollTo(0,0);
+        }
+
+        function showLibrary() {
+            document.getElementById('diseaseDetailView').style.display = 'none';
+            document.getElementById('libraryListView').style.display = 'block';
+            document.getElementById('headerActions').style.display = 'none';
+            document.getElementById('headerTitle').innerHTML = `<h1 class="greeting">Disease Library</h1><p>Comprehensive knowledge base for coconut crop health.</p>`;
+        }
+    </script>
+</body>
+</html>
