@@ -704,7 +704,7 @@
 
 
          function getInitials(name) {
-    if (!name) return "JD";
+    if (!name) return "JV";
     const parts = name.split(" ").filter(p => p.length);
     return parts.length === 1
       ? parts[0][0].toUpperCase()
@@ -712,7 +712,7 @@
   }
 
   function loadSidebarProfile() {
-    const savedName = localStorage.getItem("cg_fullname") || "John Doe";
+    const savedName = localStorage.getItem("cg_fullname") || "Jatin Vaishnav";
     const savedInitials =
       localStorage.getItem("cg_initials") || getInitials(savedName);
 
@@ -791,3 +791,4 @@
 </body>
 
 </html>
+
