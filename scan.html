@@ -830,11 +830,11 @@ async function runAnalysis() {
     btn.disabled = true;
 
     try {
-        // Convert base64 to Blob
+        // base64 → Blob
         const blob = await fetch(state.imageSrc).then(res => res.blob());
 
         const formData = new FormData();
-        formData.append("data", blob);
+        formData.append("file", blob); // 🔥 MUST be "file"
 
         const response = await fetch(
             "https://techsachi-coconutd.hf.space/api/predict",
@@ -844,10 +844,10 @@ async function runAnalysis() {
             }
         );
 
-        const result = await response.json();
+        const json = await response.json();
 
-        const prediction = result.data[0];
-
+        // ✅ SAFE PARSING
+        const prediction = json.data[0];
         const disease = prediction.disease;
         const confidence = prediction.confidence;
 
@@ -859,9 +859,7 @@ async function runAnalysis() {
         document.getElementById("resId").innerText = state.scanId;
         document.getElementById("resTitle").innerText = disease;
         document.getElementById("resDesc").innerText =
-            disease === "Healthy"
-                ? "No disease detected."
-                : "Disease detected. Recommended action required.";
+            "Disease detected. Recommended action required.";
 
         document.getElementById("resImpact").innerText =
             confidence + "% confidence";
@@ -873,8 +871,8 @@ async function runAnalysis() {
         document.getElementById("viewReportBtn").disabled = false;
 
     } catch (err) {
-        alert("AI Server Error. Please try again.");
         console.error(err);
+        alert("AI Server Error. Please try again.");
     } finally {
         btn.innerHTML = 'Analyze Crop Health';
         btn.disabled = false;
@@ -923,4 +921,5 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
