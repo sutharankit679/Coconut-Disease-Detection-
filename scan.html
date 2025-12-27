@@ -821,58 +821,66 @@
         clearError();
     }
 
-    // --- 6. ANALYZE LOGIC ---
-    function runAnalysis() {
-        const btn = document.getElementById('analyzeBtn');
-        const originalText = btn.innerHTML;
-        
-        btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Processing...';
-        btn.disabled = true;
+   
+async function runAnalysis() {
+    if (!state.imageSrc) return;
 
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            
-            // Mock AI Result
-            const isDisease = Math.random() > 0.4;
-            
-            const randomId = Math.floor(10000 + Math.random() * 90000);
-            state.scanId = `#SC-${randomId}`;
+    const btn = document.getElementById('analyzeBtn');
+    btn.innerHTML = 'Processing...';
+    btn.disabled = true;
 
-            state.diseaseResult = isDisease ? "Leaf Blight" : "Healthy";
-            state.confidenceVal = Math.floor(Math.random() * (99 - 90) + 90);
+    try {
+        // Convert base64 to Blob
+        const blob = await fetch(state.imageSrc).then(res => res.blob());
 
-            document.getElementById('resId').innerText = state.scanId;
-            const card = document.getElementById('resultCard');
-            const badge = document.getElementById('resBadge');
-            const viewBtn = document.getElementById('viewReportBtn');
+        const formData = new FormData();
+        formData.append("data", blob);
 
-            if (isDisease) {
-                card.className = "card result-card border-disease";
-                badge.className = "res-badge badge-disease";
-                badge.innerText = `${state.confidenceVal}% Confidence`;
-                
-                document.getElementById('resTitle').innerText = "Leaf Blight Detected";
-                document.getElementById('resDesc').innerText = "Fungal infection spots visible. Immediate isolation recommended.";
-                document.getElementById('resImpact').innerText = "~15% Yield Loss";
-                document.getElementById('resImpact').style.color = "#DC2626";
-            } else {
-                card.className = "card result-card border-healthy";
-                badge.className = "res-badge badge-healthy";
-                badge.innerText = `${state.confidenceVal}% Confidence`;
-                
-                document.getElementById('resTitle').innerText = "Healthy Crop";
-                document.getElementById('resDesc').innerText = "No visible signs of disease. Plant appears vibrant.";
-                document.getElementById('resImpact').innerText = "Optimal Yield";
-                document.getElementById('resImpact').style.color = "#059669";
+        const response = await fetch(
+            "https://techsachi-coconutd.hf.space/api/predict",
+            {
+                method: "POST",
+                body: formData
             }
+        );
 
-            card.style.display = 'block';
-            card.scrollIntoView({ behavior: 'smooth' });
-            viewBtn.disabled = false;
+        const result = await response.json();
 
-        }, 1500);
+        const prediction = result.data[0];
+
+        const disease = prediction.disease;
+        const confidence = prediction.confidence;
+
+        // UI UPDATE
+        state.scanId = "#SC-" + Math.floor(10000 + Math.random() * 90000);
+        state.diseaseResult = disease;
+        state.confidenceVal = confidence;
+
+        document.getElementById("resId").innerText = state.scanId;
+        document.getElementById("resTitle").innerText = disease;
+        document.getElementById("resDesc").innerText =
+            disease === "Healthy"
+                ? "No disease detected."
+                : "Disease detected. Recommended action required.";
+
+        document.getElementById("resImpact").innerText =
+            confidence + "% confidence";
+
+        document.getElementById("resBadge").innerText =
+            confidence + "% Confidence";
+
+        document.getElementById("resultCard").style.display = "block";
+        document.getElementById("viewReportBtn").disabled = false;
+
+    } catch (err) {
+        alert("AI Server Error. Please try again.");
+        console.error(err);
+    } finally {
+        btn.innerHTML = 'Analyze Crop Health';
+        btn.disabled = false;
     }
+}
+
 
     // --- 7. SAVE & REDIRECT ---
     function saveAndRedirect() {
@@ -915,3 +923,4 @@
 </body>
 
 </html>
+
