@@ -821,15 +821,8 @@
         clearError();
     }
 
-   
 async function runAnalysis() {
     if (!state.imageSrc) return;
-
-    const fileInput = document.getElementById("fileInput");
-    const file = fileInput.files[0];
-
-    const formData = new FormData();
-    formData.append("data", file); // ✅ VERY IMPORTANT (NOT "file")
 
     const analyzeBtn = document.getElementById("analyzeBtn");
     analyzeBtn.innerText = "Analyzing...";
@@ -840,21 +833,24 @@ async function runAnalysis() {
             "https://e6dde8657cd05f4b1f.gradio.live/run/predict",
             {
                 method: "POST",
-                body: formData
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    data: [state.imageSrc]   // ✅ BASE64 IMAGE
+                })
             }
         );
 
         const result = await response.json();
 
-        // 🔍 SAFETY CHECK
         if (!result || !result.data || !result.data[0]) {
             throw new Error("Invalid AI response");
         }
 
-        // ✅ Gradio response
         const output = result.data[0];
 
-        // --- UI UPDATE ---
+        // UI UPDATE
         document.getElementById("resultCard").style.display = "block";
         document.getElementById("resBadge").innerText = "Disease Detected";
         document.getElementById("resBadge").className = "res-badge badge-disease";
@@ -880,6 +876,7 @@ async function runAnalysis() {
 
     analyzeBtn.innerText = "Analyze Crop Health";
 }
+
 
 
 
@@ -925,6 +922,7 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
 
 
