@@ -821,71 +821,44 @@
         clearError();
     }
 
-
 async function runAnalysis() {
-    if (!state.imageSrc) return;
+  if (!window.uploadedImageBase64) {
+    alert("Please upload an image first");
+    return;
+  }
 
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    analyzeBtn.innerText = "Analyzing...";
-    analyzeBtn.disabled = true;
+  try {
+    const response = await fetch(
+      "https://e6dde8657cd05f4b1f.gradio.live/api/predict",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          data: [window.uploadedImageBase64]
+        })
+      }
+    );
 
-    try {
-        // 🔥 REMOVE data:image/... PREFIX
-        const base64Image = state.imageSrc.split(",")[1];
-
-        const response = await fetch(
-            "https://e6dde8657cd05f4b1f.gradio.live/api/predict",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    data: [base64Image]
-                })
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error("HTTP " + response.status);
-        }
-
-        const result = await response.json();
-
-        if (!result || !result.data || !result.data[0]) {
-            throw new Error("Invalid AI response");
-        }
-
-        // Gradio output
-        const output = result.data[0];
-
-        // UI UPDATE
-        document.getElementById("resultCard").style.display = "block";
-        document.getElementById("resBadge").innerText = "Disease Detected";
-        document.getElementById("resBadge").className = "res-badge badge-disease";
-
-        document.getElementById("resTitle").innerText = output.disease;
-        document.getElementById("resDesc").innerText =
-            "Confidence: " + output.confidence + "%";
-
-        state.diseaseResult = output.disease;
-        state.confidenceVal = output.confidence;
-        state.scanId = "CG-" + Date.now();
-
-        document.getElementById("resId").innerText = state.scanId;
-        document.getElementById("resImpact").innerText =
-            output.confidence >= 70 ? "High" : "Medium";
-
-        document.getElementById("viewReportBtn").disabled = false;
-
-    } catch (err) {
-        console.error("AI ERROR:", err);
-        alert("AI Server Error. Please try again.");
+    if (!response.ok) {
+      throw new Error("AI Server Error");
     }
 
-    analyzeBtn.innerText = "Analyze Crop Health";
-}
+    const result = await response.json();
+    const output = result.data[0];
 
+    document.getElementById("diseaseResult").innerText =
+      "Disease: " + output.disease;
+
+    document.getElementById("confidenceResult").innerText =
+      "Confidence: " + output.confidence + "%";
+
+  } catch (err) {
+    console.error(err);
+    alert("AI Server Error. Please try again.");
+  }
+}
 
 
 
@@ -930,6 +903,7 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
 
 
