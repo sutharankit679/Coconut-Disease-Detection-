@@ -878,15 +878,44 @@ async function runAnalysis() {
 
         // Badge (Healthy vs Disease Color)
         const badge = document.getElementById("resBadge");
-        badge.innerText = result.status.toUpperCase();
-        
-        if (result.status === "Healthy") {
-            badge.className = "res-badge badge-healthy";
-            document.getElementById("resultCard").className = "card result-card border-healthy";
-        } else {
-            badge.className = "res-badge badge-disease";
-            document.getElementById("resultCard").className = "card result-card border-disease";
-        }
+       // Disease Name
+document.getElementById("resTitle").innerText = result.disease;
+
+// Confidence
+document.getElementById("resDesc").innerText =
+  `AI Confidence: ${result.confidence}%. Detected via ${state.sensor}.`;
+
+// Decide status on frontend
+const status = result.disease.toLowerCase().includes("healthy")
+  ? "Healthy"
+  : "Diseased";
+
+const badge = document.getElementById("resBadge");
+badge.innerText = status.toUpperCase();
+
+if (status === "Healthy") {
+  badge.className = "res-badge badge-healthy";
+  document.getElementById("resultCard").className =
+    "card result-card border-healthy";
+} else {
+  badge.className = "res-badge badge-disease";
+  document.getElementById("resultCard").className =
+    "card result-card border-disease";
+}
+
+// Metadata
+state.diseaseResult = result.disease;
+state.confidenceVal = result.confidence;
+state.scanId = "SCN-" + Math.floor(Math.random() * 10000);
+
+document.getElementById("resId").innerText = state.scanId;
+document.getElementById("resImpact").innerText =
+  status === "Healthy" ? "Low" : "High";
+
+// Show result
+document.getElementById("resultCard").style.display = "block";
+document.getElementById("viewReportBtn").disabled = false;
+
 
         // Update Hidden Metadata
         state.diseaseResult = result.disease;
@@ -953,6 +982,7 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
 
 
