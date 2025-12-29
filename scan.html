@@ -845,15 +845,16 @@ async function runAnalysis() {
     const cleanUrl = API_URL.replace(/\/$/, "");
 
     // 3. Send request to Flask backend
-    const response = await fetch(`${cleanUrl}/api/predict`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        imageSrc: state.imageSrc.split(",")[1], // base64 only
-      }),
-    });
+   const response = await fetch(`${cleanUrl}/api/predict`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    imageSrc: state.imageSrc.split(",")[1]
+  })
+});
+
 
     if (!response.ok) {
       throw new Error("Backend error");
@@ -961,6 +962,7 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
 
 
