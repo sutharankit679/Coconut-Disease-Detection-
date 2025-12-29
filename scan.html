@@ -822,123 +822,102 @@
     }
 
 // ========================================================
-// 🛑 IMPORTANT: Colab se mila NAYA URL yahan paste karein
+// ✅ Backend API URL (Render)
 // ========================================================
-const API_URL = "https://ml-model-backend-jldq.onrender.com"; 
-// Example: const API_URL = "https://a1b2c3d4.gradio.live";
-
+const API_URL = "https://ml-model-backend-jldq.onrender.com";
 
 async function runAnalysis() {
-    // 1. Check Image
-    if (!state.imageSrc) {
-        alert("Please upload an image first");
-        return;
+  // 1. Image check
+  if (!state.imageSrc) {
+    alert("Please upload an image first");
+    return;
+  }
+
+  const btn = document.getElementById("analyzeBtn");
+  const originalText = btn.innerHTML;
+
+  // UI loading state
+  btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Analyzing...';
+  btn.disabled = true;
+
+  try {
+    // 2. Clean URL
+    const cleanUrl = API_URL.replace(/\/$/, "");
+
+    // 3. Send request to Flask backend
+    const response = await fetch(`${cleanUrl}/api/predict`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageSrc: state.imageSrc.split(",")[1], // base64 only
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Backend error");
     }
 
-    // 2. Check URL
-    if (API_URL.includes("YOUR-NEW-URL")) {
-        alert("Please update the API_URL in code with your Colab link!");
-        return;
+    const result = await response.json();
+    // Expected: { disease: "Leaf Rot", confidence: 92.3 }
+
+    // -------------------------------
+    // 4. UPDATE UI (NO DUPLICATES)
+    // -------------------------------
+
+    // Disease title
+    document.getElementById("resTitle").innerText = result.disease;
+
+    // Confidence text
+    document.getElementById("resDesc").innerText =
+      `AI Confidence: ${result.confidence}%. Detected via ${state.sensor}.`;
+
+    // Decide status on frontend
+    const status = result.disease.toLowerCase().includes("healthy")
+      ? "Healthy"
+      : "Diseased";
+
+    // Badge
+    const badge = document.getElementById("resBadge");
+    badge.innerText = status.toUpperCase();
+
+    if (status === "Healthy") {
+      badge.className = "res-badge badge-healthy";
+      document.getElementById("resultCard").className =
+        "card result-card border-healthy";
+    } else {
+      badge.className = "res-badge badge-disease";
+      document.getElementById("resultCard").className =
+        "card result-card border-disease";
     }
 
-    const btn = document.getElementById('analyzeBtn');
-    const originalText = btn.innerHTML;
-    
-    // UI Loading State
-    btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Analyzing...';
-    btn.disabled = true;
+    // Metadata
+    state.diseaseResult = result.disease;
+    state.confidenceVal = result.confidence;
+    state.scanId = "SCN-" + Math.floor(Math.random() * 10000);
 
-    try {
-        // 3. Send Request to Colab
-        // Remove trailing slash if present
-        const cleanUrl = API_URL.replace(/\/$/, "");
-        
-        const response = await fetch(`${cleanUrl}/api/predict`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-           body: JSON.stringify({
-    imageSrc: state.imageSrc.split(",")[1]
-})
-        });
+    document.getElementById("resId").innerText = state.scanId;
+    document.getElementById("resImpact").innerText =
+      status === "Healthy" ? "Low" : "High";
 
-        if (!response.ok) throw new Error("Server Error");
+    // Show result card
+    document.getElementById("resultCard").style.display = "block";
+    document.getElementById("viewReportBtn").disabled = false;
 
-        const jsonResponse = await response.json();
-        
-        // Colab Result: { data: [ { disease: "X", confidence: "99%", status: "Diseased" } ] }
-        const result = jsonResponse;
+    // Scroll for mobile
+    document
+      .getElementById("resultCard")
+      .scrollIntoView({ behavior: "smooth" });
 
-        // 4. Update UI with Real Data
-        // Disease Name
-        document.getElementById("resTitle").innerText = result.disease;
-        
-        // Description / Confidence
-        document.getElementById("resDesc").innerText = 
-            `AI Confidence: ${result.confidence}. Detected via ${state.sensor}.`;
-
-        // Badge (Healthy vs Disease Color)
-        const badge = document.getElementById("resBadge");
-       // Disease Name
-document.getElementById("resTitle").innerText = result.disease;
-
-// Confidence
-document.getElementById("resDesc").innerText =
-  `AI Confidence: ${result.confidence}%. Detected via ${state.sensor}.`;
-
-// Decide status on frontend
-const status = result.disease.toLowerCase().includes("healthy")
-  ? "Healthy"
-  : "Diseased";
-
-const badge = document.getElementById("resBadge");
-badge.innerText = status.toUpperCase();
-
-if (status === "Healthy") {
-  badge.className = "res-badge badge-healthy";
-  document.getElementById("resultCard").className =
-    "card result-card border-healthy";
-} else {
-  badge.className = "res-badge badge-disease";
-  document.getElementById("resultCard").className =
-    "card result-card border-disease";
-}
-
-// Metadata
-state.diseaseResult = result.disease;
-state.confidenceVal = result.confidence;
-state.scanId = "SCN-" + Math.floor(Math.random() * 10000);
-
-document.getElementById("resId").innerText = state.scanId;
-document.getElementById("resImpact").innerText =
-  status === "Healthy" ? "Low" : "High";
-
-// Show result
-document.getElementById("resultCard").style.display = "block";
-document.getElementById("viewReportBtn").disabled = false;
-
-
-        // Update Hidden Metadata
-        state.diseaseResult = result.disease;
-        state.confidenceVal = result.confidence;
-        state.scanId = "SCN-" + Math.floor(Math.random() * 10000);
-        document.getElementById("resId").innerText = state.scanId;
-        document.getElementById("resImpact").innerText = result.status === "Healthy" ? "Low" : "High";
-
-        // Show Result Card
-        document.getElementById("resultCard").style.display = "block";
-        document.getElementById("viewReportBtn").disabled = false;
-
-        // Scroll to result (for mobile)
-        document.getElementById("resultCard").scrollIntoView({ behavior: 'smooth' });
-
-    } catch (err) {
-        console.error(err);
-        alert("Error: Could not connect to Colab. Make sure URL is correct.");
-    } finally {
-        // Reset Button
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
+  } catch (err) {
+    console.error(err);
+    alert("Error: Could not connect to backend API.");
+  } finally {
+    // Reset button
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
 }
 
     // --- 7. SAVE & REDIRECT ---
@@ -982,6 +961,7 @@ document.getElementById("viewReportBtn").disabled = false;
 </body>
 
 </html>
+
 
 
 
