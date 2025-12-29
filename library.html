@@ -382,17 +382,16 @@
             </li>
         </ul>
         <div class="user-profile" id="sidebarProfile" onclick="goToProfile()">
-    <div class="avatar" id="sidebarAvatar">JV</div>
-    <div style="flex:1;">
-        <div id="sidebarName" style="font-size:14px; font-weight:700;">
-            Jatin Vaishnav
+            <div class="avatar" id="sidebarAvatar">JD</div>
+            <div style="flex:1;">
+                <div id="sidebarName" style="font-size:14px; font-weight:700;">
+                    John Doe
+                </div>
+                <div style="font-size:12px; color:var(--text-body);">
+                    Premium User
+                </div>
+            </div>
         </div>
-        <div style="font-size:12px; color:var(--text-body);">
-            Premium User
-        </div>
-    </div>
-</div>
-
     </aside>
 
     <main class="main-content">
@@ -536,71 +535,14 @@
         // --- DATASET ---
         const libraryData = [
             {
-                name: "Leaf Blight",
-                type: "Fungal",
-                part: "Leaf",
-                severity: "Moderate",
-                img: "https://apps.lucidcentral.org/pppw_v11/images/entities/coconut_seedling_blight_075/bipolaris.jpg", 
-                visuals: [
-                    { url: "https://apps.lucidcentral.org/pppw_v11/images/entities/coconut_seedling_blight_075/bipolaris.jpg", caption: "Necrotic Lesions on Leaflet" },
-                    { url: "https://goodhands.lk/wp-content/uploads/2023/06/image-1.png", caption: "Advanced Stage Spreading" }
-                ],
-                desc: "A common fungal infection causing necrotic lesions starting from leaf tips, leading to reduced photosynthesis and drying of fronds.",
-                symptoms: ["Greyish-brown necrotic spots on leaflets.", "Lesions start at tip and spread inwards.", "Dried appearance of lower fronds."],
-                causes: ["Pathogen: Lasiodiplodia theobromae.", "High humidity conditions.", "Poor soil drainage."],
-                immediate: ["Prune infected leaves", "Apply 1% Bordeaux mixture"],
-                prevention: ["Improve air circulation", "Apply Potash fertilizer"],
-                impact: { spread: "Medium", yield: "10-15% Loss" },
-                badgeClass: "type-fungal",
-                sevColor: "#F59E0B"
-            },
-            {
-                name: "Lethal Yellowing",
-                type: "Bacterial",
-                part: "Fronds/Nut",
-                severity: "High",
-                img: "https://palmtreedr.com/blog/wp-content/uploads/2013/12/18d.jpg",
-                visuals: [
-                    { url: "https://palmtreedr.com/blog/wp-content/uploads/2013/12/18d.jpg", caption: "Yellowing of Lower Fronds" },
-                    { url: "https://www.cphdforum.org/wp-content/uploads/2015/06/LethalYellowingCoconutSymptom.jpg", caption: "Crown Collapse" }
-                ],
-                desc: "A systemic disease caused by phytoplasmas that results in the yellowing of fronds, premature nut fall, and eventual death of the palm.",
-                symptoms: ["Premature dropping of nuts", "Blackening of inflorescence", "Yellowing of lower fronds spreading upwards"],
-                causes: ["Pathogen: Phytoplasma", "Vector: Planthopper (Haplaxius crudus)"],
-                immediate: ["Inject Oxytetracycline HCl", "Remove infected palms immediately"],
-                prevention: ["Plant resistant varieties (e.g., Malayan Dwarf)", "Control vector population"],
-                impact: { spread: "High", yield: "100% Loss (Death)" },
-                badgeClass: "type-bacterial",
-                sevColor: "#DC2626"
-            },
-            {
-                name: "Root Wilt",
-                type: "Bacterial",
-                part: "Root/Leaf",
-                severity: "High",
-                img: "https://parachutekalpavriksha.org/cdn/shop/articles/36.03.jpg?v=1742539982&width=1500",
-                visuals: [
-                    { url: "https://parachutekalpavriksha.org/cdn/shop/articles/36.03.jpg?v=1742539982&width=1500", caption: "Flaccidity & Ribbing" },
-                    { url: "https://cpcri.gov.in/images/Crop_Protection/3.jpg", caption: "Stunted Palm Growth" }
-                ],
-                desc: "A debilitating disease characterized by the flaccidity of leaflets and general yellowing, leading to significant yield loss over time.",
-                symptoms: ["Flaccidity/Bending of leaflets (Ribbing)", "Yellowing of older leaves", "Stunted growth and marginal necrosis"],
-                causes: ["Pathogen: Phytoplasma", "Vector: Lace bug / Plant hopper", "Poor soil health exacerbates"],
-                immediate: ["Apply fertilizers (Mg, Bo)", "Remove severely infected trees"],
-                prevention: ["Cultivate resistant hybrids", "Maintain optimal soil nutrients", "Bio-control of vectors"],
-                impact: { spread: "Slow but Persistent", yield: "30-50% Loss" },
-                badgeClass: "type-bacterial",
-                sevColor: "#DC2626"
-            },
-            {
                 name: "Bud Rot",
                 type: "Fungal",
                 part: "Bud/Heart",
                 severity: "High",
                 img: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_bud_rot_140/seedlingrotvan1.jpg",
                 visuals: [
-                    { url: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_bud_rot_140/seedlingrotvan1.jpg",  },
-                    { url: "https://ars.els-cdn.com/content/image/1-s2.0-S2352340923007692-fx1.jpg" }
+                    { url: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_bud_rot_140/seedlingrotvan1.jpg", caption: "Rotting of Heart Leaf" },
+                    { url: "https://ars.els-cdn.com/content/image/1-s2.0-S2352340923007692-fx1.jpg", caption: "Crown Collapse" }
                 ],
                 desc: "A lethal disease affecting the heart leaf and crown. It causes rotting of the soft tissues and can kill the palm if not treated early.",
                 symptoms: ["Yellowing of younger leaves", "Foul smell from the crown", "Rotting of the heart leaf"],
@@ -631,26 +573,62 @@
                 sevColor: "#F59E0B"
             },
             {
-                name: "Rhinoceros Beetle",
-                type: "Pest",
-                part: "Leaf/Crown",
-                severity: "Medium",
-                img: "https://agritech.tnau.ac.in/crop_protection/images/coconut_pest/1.rhinobeetle_symp3.JPG",
+                name: "Leaf Rot",
+                type: "Fungal",
+                part: "Spear Leaf",
+                severity: "High",
+                img: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_leaf_rot_140/leafrot2.jpg",
                 visuals: [
-                    { url: "https://agritech.tnau.ac.in/crop_protection/images/coconut_pest/1.rhinobeetle_symp3.JPG", caption: "Adult Beetle" },
-                    { url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjdAGsyGOsy06idLFHbA8-DaJZyTv7Yx64y9H8iMEW_WMo_vWk1uvX67VMb6nYPUaFz00&usqp=CAU", caption: "V-Shaped Geometric Cuts" }
+                    { url: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_leaf_rot_140/leafrot2.jpg", caption: "Rotting Spear Leaf" },
+                    { url: "https://agritech.tnau.ac.in/crop_protection/images/coconut/coconut_diseases_leaf_rot1.jpg", caption: "Fan-like Appearance" }
                 ],
-                desc: "A major pest that bores into the unopened fronds, causing V-shaped cuts and damage to the crown.",
-                symptoms: ["V-shaped geometric cuts on leaves", "Holes in leaf base", "Fibrous chews in crown"],
-                causes: ["Pest: Oryctes rhinoceros", "Breeding sites in manure pits", "Decaying logs nearby"],
-                immediate: ["Use beetle hooks to remove", "Apply naphthalene balls"],
-                prevention: ["Netting of manure pits", "Pheromone traps"],
-                impact: { spread: "High", yield: "10-20% Loss" },
-                badgeClass: "type-pest",
+                desc: "A fungal disease often occurring alongside Root Wilt. It affects the spear leaf, causing distal ends to rot and dry up. As the leaf unfurls, it breaks off, giving a fan-like shape.",
+                symptoms: ["Blackening and rotting of spear leaf tips", "Fan-like appearance of leaves", "Rotten portions dry and get blown off"],
+                causes: ["Pathogen: Colletotrichum gloeosporioides", "High humidity", "Weakened palm immunity"],
+                immediate: ["Cut and remove rotten portions", "Pour Mancozeb solution into crown"],
+                prevention: ["Crown cleaning", "Prophylactic fungicide spraying"],
+                impact: { spread: "Moderate", yield: "Significant Reduction" },
+                badgeClass: "type-fungal",
+                sevColor: "#DC2626"
+            },
+            {
+                name: "Grey Leaf Spot",
+                type: "Fungal",
+                part: "Leaf/Fronds",
+                severity: "Moderate",
+                img: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_grey_leaf_spot_136/pestalotiopsis2.jpg",
+                visuals: [
+                    { url: "https://apps.lucidcentral.org/pppw_v10/images/entities/coconut_grey_leaf_spot_136/pestalotiopsis2.jpg", caption: "Grey Spots with Brown Halo" },
+                    { url: "https://agritech.tnau.ac.in/crop_protection/images/coconut/coconut_diseases_grey_blight1.jpg", caption: "Blighted Fronds" }
+                ],
+                desc: "Characterized by small yellow spots that enlarge into greyish-white centers with dark brown margins. Severe infection causes leaves to look blighted and dried.",
+                symptoms: ["Small yellow spots turning grey", "Dark brown margins around spots", "Coalescing spots causing blight"],
+                causes: ["Pathogen: Pestalotiopsis palmarum", "Potassium (K) deficiency", "Ill-drained soils"],
+                immediate: ["Remove severely infected older leaves", "Spray 1% Bordeaux mixture"],
+                prevention: ["Apply Potash fertilizers", "Improve drainage"],
+                impact: { spread: "High", yield: "Reduced Vigor" },
+                badgeClass: "type-fungal",
+                sevColor: "#F59E0B"
+            },
+            {
+                name: "Bud Root Dropping",
+                type: "Fungal",
+                part: "Buttons/Nut",
+                severity: "Moderate",
+                img: "https://agritech.tnau.ac.in/crop_protection/images/coconut/coconut_diseases_button_shedding.jpg",
+                visuals: [
+                    { url: "https://agritech.tnau.ac.in/crop_protection/images/coconut/coconut_diseases_button_shedding.jpg", caption: "Fallen Buttons" },
+                    { url: "https://vikaspedia.in/agriculture/crop-production/integrated-pest-managment/ipm-for-coconut/button-shedding.jpg", caption: "Inflorescence Damage" }
+                ],
+                desc: "Premature shedding of buttons (immature nuts) caused by fungal infection or physiological stress, leading to significant yield loss.",
+                symptoms: ["Shedding of buttons after fertilization", "Brown discoloration at stalk end", "Reduced nut setting"],
+                causes: ["Pathogen: Phytophthora / Colletotrichum", "Moisture stress", "Nutrient deficiency"],
+                immediate: ["Spray 1% Bordeaux mixture", "Ensure adequate watering"],
+                prevention: ["Soil moisture conservation", "Balanced nutrition"],
+                impact: { spread: "Low", yield: "Direct Yield Loss" },
+                badgeClass: "type-fungal",
                 sevColor: "#F59E0B"
             }
-
-
         ];
 
         // --- INIT ---
@@ -702,35 +680,31 @@
             });
         }
 
+        function getInitials(name) {
+            if (!name) return "JD";
+            const parts = name.split(" ").filter(p => p.length);
+            return parts.length === 1
+              ? parts[0][0].toUpperCase()
+              : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
 
-         function getInitials(name) {
-    if (!name) return "JV";
-    const parts = name.split(" ").filter(p => p.length);
-    return parts.length === 1
-      ? parts[0][0].toUpperCase()
-      : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
+        function loadSidebarProfile() {
+            const savedName = localStorage.getItem("cg_fullname") || "John Doe";
+            const savedInitials = localStorage.getItem("cg_initials") || getInitials(savedName);
 
-  function loadSidebarProfile() {
-    const savedName = localStorage.getItem("cg_fullname") || "Jatin Vaishnav";
-    const savedInitials =
-      localStorage.getItem("cg_initials") || getInitials(savedName);
+            const avatarEl = document.getElementById("sidebarAvatar");
+            const nameEl = document.getElementById("sidebarName");
 
-    const avatarEl = document.getElementById("sidebarAvatar");
-    const nameEl = document.getElementById("sidebarName");
+            if (avatarEl) avatarEl.innerText = savedInitials;
+            if (nameEl) nameEl.innerText = savedName;
+        }
 
-    if (avatarEl) avatarEl.innerText = savedInitials;
-    if (nameEl) nameEl.innerText = savedName;
-  }
+        function goToProfile() {
+            window.location.href = "settings.html#profile";
+        }
 
-  function goToProfile() {
-    window.location.href = "settings.html#profile";
-  }
-
-  // Run on every page load
-  window.addEventListener("DOMContentLoaded", loadSidebarProfile);
-
-
+        // Run on every page load
+        window.addEventListener("DOMContentLoaded", loadSidebarProfile);
 
         // --- DETAIL VIEW ---
         function openDetail(index) {
@@ -789,6 +763,4 @@
         }
     </script>
 </body>
-
 </html>
-
