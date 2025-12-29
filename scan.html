@@ -856,9 +856,9 @@ async function runAnalysis() {
         const response = await fetch(`${cleanUrl}/api/predict`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                data: [state.imageSrc] // Sending Base64 image
-            })
+           body: JSON.stringify({
+    imageSrc: state.imageSrc.split(",")[1]
+})
         });
 
         if (!response.ok) throw new Error("Server Error");
@@ -866,7 +866,7 @@ async function runAnalysis() {
         const jsonResponse = await response.json();
         
         // Colab Result: { data: [ { disease: "X", confidence: "99%", status: "Diseased" } ] }
-        const result = jsonResponse.data[0];
+        const result = jsonResponse;
 
         // 4. Update UI with Real Data
         // Disease Name
@@ -953,6 +953,7 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
 
 
