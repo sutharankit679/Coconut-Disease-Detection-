@@ -824,7 +824,6 @@
 // ========================================================
 // ✅ Backend API URL (Render)
 // ========================================================
-const API_URL = "https://ml-model-backend-rczq.onrender.com";
 
 async function runAnalysis() {
   // 1. Image check
@@ -841,11 +840,7 @@ async function runAnalysis() {
   btn.disabled = true;
 
   try {
-    // 2. Clean URL
-    const cleanUrl = API_URL.replace(/\/$/, "");
-
-    // 3. Send request to Flask backend
-   const response = await fetch(`${cleanUrl}/api/predict`, {
+   const response = await fetch("/api/predict", {
   method: "POST",
   headers: {
     "Content-Type": "application/json"
@@ -962,6 +957,7 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
 
 
