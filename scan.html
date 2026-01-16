@@ -14,368 +14,724 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
-              :root {
-                  /* 🎨 THEME */
-                  --primary: #10B981;
-                  --primary-dark: #065F46;
-                  --primary-light: #ECFDF5;
+      :root {
+        /* 🎨 THEME */
+        --primary: #10b981;
+        --primary-dark: #065f46;
+        --primary-light: #ecfdf5;
 
-                  --accent-blue: #3B82F6;
-                  --accent-red: #EF4444;
+        --accent-blue: #3b82f6;
+        --accent-red: #ef4444;
 
-                  --bg-body: #F3F5F7;
-                  --bg-card: #FFFFFF;
+        --bg-body: #f3f5f7;
+        --bg-card: #ffffff;
 
-                  --text-head: #1F2937;
-                  --text-body: #6B7280;
-                  --border-light: #E5E7EB;
+        --text-head: #1f2937;
+        --text-body: #6b7280;
+        --border-light: #e5e7eb;
 
-                  /* Spacing & Radius */
-                  --sidebar-width: 260px;
-                  --header-height: 70px;
-                  --radius-xl: 20px;
-                  --radius-lg: 12px;
+        /* Spacing & Radius */
+        --sidebar-width: 260px;
+        --header-height: 70px;
+        --radius-xl: 20px;
+        --radius-lg: 12px;
 
-                  /* Shadows */
-                  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-                  --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-              }
+        /* Shadows */
+        --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02),
+          0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
 
-              * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-              body {
-                  font-family: 'Manrope', sans-serif;
-                  background-color: var(--bg-body);
-                  color: var(--text-head);
-                  display: flex;
-                  height: 100vh;
-                  overflow: hidden;
-              }
+      body {
+        font-family: "Manrope", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-head);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+      }
 
-              /* ------------------------------------------------
+      /* ------------------------------------------------
                  1. SIDEBAR (Desktop Fixed, Mobile Drawer)
               ------------------------------------------------ */
-              .sidebar {
-                  width: var(--sidebar-width);
-                  background: var(--bg-card);
-                  display: flex; flex-direction: column;
-                  padding: 32px 24px;
-                  border-right: 1px solid rgba(0,0,0,0.03);
-                  z-index: 100;
-                  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-              }
+      .sidebar {
+        width: var(--sidebar-width);
+        background: var(--bg-card);
+        display: flex;
+        flex-direction: column;
+        padding: 32px 24px;
+        border-right: 1px solid rgba(0, 0, 0, 0.03);
+        z-index: 100;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
-              .brand {
-                  display: flex; align-items: center; gap: 12px;
-                  margin-bottom: 48px;
-                  color: var(--primary-dark);
-              }
-              .brand-icon {
-                  width: 40px; height: 40px; background: var(--primary-light);
-                  color: var(--primary); border-radius: 12px;
-                  display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
-              }
-              .brand-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 48px;
+        color: var(--primary-dark);
+      }
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 24px;
+        flex-shrink: 0;
+      }
+      .brand-text {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
 
-              .nav-menu { list-style: none; flex: 1; overflow-y: auto; }
-              .nav-item { margin-bottom: 8px; }
+      .nav-menu {
+        list-style: none;
+        flex: 1;
+        overflow-y: auto;
+      }
+      .nav-item {
+        margin-bottom: 8px;
+      }
 
-              .nav-link {
-                  display: flex; align-items: center; gap: 14px;
-                  padding: 14px 16px;
-                  color: var(--text-body);
-                  text-decoration: none;
-                  border-radius: var(--radius-lg);
-                  font-weight: 600; font-size: 15px;
-                  transition: all 0.2s ease;
-              }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        color: var(--text-body);
+        text-decoration: none;
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s ease;
+      }
 
-              .nav-link:hover { background: var(--bg-body); color: var(--text-head); }
-              .nav-link.active { background: var(--primary-light); color: var(--primary-dark); }
-              .nav-link.active i { color: var(--primary); font-weight: bold; }
+      .nav-link:hover {
+        background: var(--bg-body);
+        color: var(--text-head);
+      }
+      .nav-link.active {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+      }
+      .nav-link.active i {
+        color: var(--primary);
+        font-weight: bold;
+      }
 
-              .user-profile {
-                  background: var(--bg-body);
-                  padding: 12px; border-radius: var(--radius-lg);
-                  display: flex; align-items: center; gap: 12px;
-                  cursor: pointer; margin-top: auto;
-              }
-              .avatar {
-                  width: 36px; height: 36px; background: #D1FAE5; color: var(--primary-dark);
-                  border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
-              }
+      .user-profile {
+        background: var(--bg-body);
+        padding: 12px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        margin-top: auto;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        background: #d1fae5;
+        color: var(--primary-dark);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
 
-              /* Mobile Overlay */
-              .sidebar-overlay {
-                  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
-                  opacity: 0; pointer-events: none; transition: 0.3s;
-              }
-              .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+      /* Mobile Overlay */
+      .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 90;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s;
+      }
+      .sidebar-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
 
-              /* ------------------------------------------------
+      /* ------------------------------------------------
                  2. MAIN CONTENT
               ------------------------------------------------ */
-              .main-content {
-                  flex: 1;
-                  overflow-y: auto;
-                  overflow-x: hidden;
-                  padding: 32px 40px;
-                  position: relative;
-              }
+      .main-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 32px 40px;
+        position: relative;
+      }
 
-              /* Header */
-              .header {
-                  display: flex; justify-content: space-between; align-items: center;
-                  margin-bottom: 32px;
-              }
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+      }
 
-              .mobile-toggle {
-                  display: none; background: none; border: none; font-size: 28px;
-                  color: var(--text-head); cursor: pointer; padding: 0; margin-right: 16px;
-              }
+      .mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 28px;
+        color: var(--text-head);
+        cursor: pointer;
+        padding: 0;
+        margin-right: 16px;
+      }
 
-              .header-left { display: flex; align-items: center; }
+      .header-left {
+        display: flex;
+        align-items: center;
+      }
 
-              .back-link {
-                  text-decoration: none; color: var(--text-body); font-size: 14px; font-weight: 500;
-                  display: flex; align-items: center; gap: 8px; transition: 0.2s;
-              }
-              .back-link:hover { color: var(--primary); }
+      .back-link {
+        text-decoration: none;
+        color: var(--text-body);
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .back-link:hover {
+        color: var(--primary);
+      }
 
-              .greeting h1 { font-size: 24px; font-weight: 700; color: var(--text-head); letter-spacing: -0.5px; margin-top: 8px; }
-              .greeting p { color: var(--text-body); font-size: 15px; margin-top: 4px; font-weight: 400; }
+      .greeting h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-head);
+        letter-spacing: -0.5px;
+        margin-top: 8px;
+      }
+      .greeting p {
+        color: var(--text-body);
+        font-size: 15px;
+        margin-top: 4px;
+        font-weight: 400;
+      }
 
-              .date-badge {
-                  background: white; padding: 8px 16px; border-radius: 100px;
-                  border: 1px solid var(--border-light); color: var(--text-body); font-size: 13px; font-weight: 600;
-                  display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-card);
-              }
+      .date-badge {
+        background: white;
+        padding: 8px 16px;
+        border-radius: 100px;
+        border: 1px solid var(--border-light);
+        color: var(--text-body);
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: var(--shadow-card);
+      }
 
-              /* ------------------------------------------------
+      /* ------------------------------------------------
                  3. SCAN GRID
               ------------------------------------------------ */
-              .scan-grid {
-                  display: grid;
-                  grid-template-columns: 2fr 1fr; /* Desktop: 66% - 33% */
-                  gap: 32px;
-                  max-width: 1300px;
-                  margin: 0 auto;
-              }
+      .scan-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr; /* Desktop: 66% - 33% */
+        gap: 32px;
+        max-width: 1300px;
+        margin: 0 auto;
+      }
 
-              .left-panel { display: flex; flex-direction: column; gap: 24px; }
-              .right-panel { display: flex; flex-direction: column; gap: 24px; }
+      .left-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
 
-              .card {
-                  background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
-                  box-shadow: var(--shadow-card); border: 1px solid rgba(0,0,0,0.02);
-              }
+      .card {
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.02);
+      }
 
-              /* Sensor Tabs */
-              .section-label {
-                  font-size: 12px; font-weight: 600; color: var(--text-body);
-                  text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.8px;
-              }
+      /* Sensor Tabs */
+      .section-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-body);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        letter-spacing: 0.8px;
+      }
 
-              .sensor-tabs {
-                  background: #F8FAFC; padding: 6px; border-radius: 16px;
-                  display: flex; gap: 6px; margin-bottom: 24px; border: 1px solid var(--border-light);
-              }
-              .sensor-tab {
-                  flex: 1; padding: 12px; text-align: center; cursor: pointer;
-                  border-radius: 12px; font-size: 14px; font-weight: 500; color: var(--text-body);
-                  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
-              }
-              .sensor-tab:hover { background: rgba(255,255,255,0.5); color: var(--text-head); }
-              .sensor-tab.active {
-                  background: white; color: var(--primary-dark); font-weight: 600;
-                  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-              }
-              .sensor-tab.active i { color: var(--primary); }
+      .sensor-tabs {
+        background: #f8fafc;
+        padding: 6px;
+        border-radius: 16px;
+        display: flex;
+        gap: 6px;
+        margin-bottom: 24px;
+        border: 1px solid var(--border-light);
+      }
+      .sensor-tab {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-body);
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .sensor-tab:hover {
+        background: rgba(255, 255, 255, 0.5);
+        color: var(--text-head);
+      }
+      .sensor-tab.active {
+        background: white;
+        color: var(--primary-dark);
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .sensor-tab.active i {
+        color: var(--primary);
+      }
 
-              /* Upload Zone */
-              .upload-zone {
-                  border: 2px dashed var(--border-light); border-radius: var(--radius-xl);
-                  padding: 50px; text-align: center; background: #FAFAFA;
-                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
-              }
-              .upload-zone:hover { border-color: var(--primary); background: #F0FDF4; transform: translateY(-1px); }
-              .upload-zone:active { transform: scale(0.98); background: #DCFCE7; }
+      /* Upload Zone */
+      .upload-zone {
+        border: 2px dashed var(--border-light);
+        border-radius: var(--radius-xl);
+        padding: 50px;
+        text-align: center;
+        background: #fafafa;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+      }
+      .upload-zone:hover {
+        border-color: var(--primary);
+        background: #f0fdf4;
+        transform: translateY(-1px);
+      }
+      .upload-zone:active {
+        transform: scale(0.98);
+        background: #dcfce7;
+      }
 
-              .icon-circle {
-                  width: 64px; height: 64px; background: white; border-radius: 50%;
-                  display: grid; place-items: center; font-size: 28px; color: var(--primary);
-                  box-shadow: var(--shadow-card); margin: 0 auto 16px auto;
-              }
-              .upload-title { font-size: 16px; font-weight: 600; color: var(--text-head); margin-bottom: 6px; }
-              .upload-desc { font-size: 13px; color: var(--text-body); max-width: 280px; margin: 0 auto; line-height: 1.5; }
+      .icon-circle {
+        width: 64px;
+        height: 64px;
+        background: white;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 28px;
+        color: var(--primary);
+        box-shadow: var(--shadow-card);
+        margin: 0 auto 16px auto;
+      }
+      .upload-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-head);
+        margin-bottom: 6px;
+      }
+      .upload-desc {
+        font-size: 13px;
+        color: var(--text-body);
+        max-width: 280px;
+        margin: 0 auto;
+        line-height: 1.5;
+      }
 
-              /* Preview */
-              .preview-container {
-                  display: none; background: #F8FAFC; border-radius: var(--radius-xl);
-                  overflow: hidden; position: relative; height: 400px; width: 100%; border: 1px solid var(--border-light);
-              }
-              .preview-img { width: 100%; height: 100%; object-fit: contain; }
+      /* Preview */
+      .preview-container {
+        display: none;
+        background: #f8fafc;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        position: relative;
+        height: 400px;
+        width: 100%;
+        border: 1px solid var(--border-light);
+      }
+      .preview-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
 
-              .preview-actions {
-                  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-                  display: flex; gap: 12px; background: white; padding: 6px; border-radius: 100px;
-                  box-shadow: var(--shadow-float);
-              }
+      .preview-actions {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        background: white;
+        padding: 6px;
+        border-radius: 100px;
+        box-shadow: var(--shadow-float);
+      }
 
-              /* Buttons */
-              .btn-analyze {
-                  width: 100%; padding: 16px; border-radius: 14px;
-                  background: var(--text-head); color: white; border: none;
-                  font-size: 15px; font-weight: 600; cursor: pointer;
-                  display: flex; justify-content: center; align-items: center; gap: 10px;
-                  transition: 0.2s; box-shadow: var(--shadow-card); letter-spacing: 0.3px;
-              }
-              .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; background: #9CA3AF; }
-              .btn-analyze:not(:disabled):hover { background: #111827; transform: translateY(-1px); }
+      /* Buttons */
+      .btn-analyze {
+        width: 100%;
+        padding: 16px;
+        border-radius: 14px;
+        background: var(--text-head);
+        color: white;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        transition: 0.2s;
+        box-shadow: var(--shadow-card);
+        letter-spacing: 0.3px;
+      }
+      .btn-analyze:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: #9ca3af;
+      }
+      .btn-analyze:not(:disabled):hover {
+        background: #111827;
+        transform: translateY(-1px);
+      }
 
-              .btn-icon-soft {
-                  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-light);
-                  background: white; color: var(--text-body); cursor: pointer;
-                  display: grid; place-items: center; font-size: 18px; transition: 0.2s;
-              }
-              .btn-icon-soft:hover { background: #F3F5F7; color: var(--text-head); }
+      .btn-icon-soft {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid var(--border-light);
+        background: white;
+        color: var(--text-body);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        transition: 0.2s;
+      }
+      .btn-icon-soft:hover {
+        background: #f3f5f7;
+        color: var(--text-head);
+      }
 
-              /* Right Panel */
-              .gps-card { background: white; }
-              .gps-status {
-                  display: inline-flex; align-items: center; gap: 6px;
-                  font-size: 12px; font-weight: 700; color: var(--primary);
-                  background: var(--primary-light); padding: 4px 10px; border-radius: 20px;
-              }
-              .pulse-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 0 2px rgba(16,185,129,0.3); }
+      /* Right Panel */
+      .gps-card {
+        background: white;
+      }
+      .gps-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--primary);
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+      }
 
-              .location-details { margin-top: 16px; background: #F8FAFC; border-radius: 12px; padding: 16px; }
-              .loc-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-              .loc-row:last-child { margin-bottom: 0; }
-              .loc-label { color: var(--text-body); }
-              .loc-val { font-weight: 600; color: var(--text-head); text-align: right; }
+      .location-details {
+        margin-top: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px;
+      }
+      .loc-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+      .loc-row:last-child {
+        margin-bottom: 0;
+      }
+      .loc-label {
+        color: var(--text-body);
+      }
+      .loc-val {
+        font-weight: 600;
+        color: var(--text-head);
+        text-align: right;
+      }
 
-              /* Result Card */
-              .result-card { display: none; background: white; overflow: hidden; animation: fadeIn 0.4s ease; padding: 0; }
-              .border-disease { border-top: 5px solid #EF4444; }
-              .border-healthy { border-top: 5px solid #10B981; }
+      /* Result Card */
+      .result-card {
+        display: none;
+        background: white;
+        overflow: hidden;
+        animation: fadeIn 0.4s ease;
+        padding: 0;
+      }
+      .border-disease {
+        border-top: 5px solid #ef4444;
+      }
+      .border-healthy {
+        border-top: 5px solid #10b981;
+      }
 
-              .res-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
-              .badge-disease { background: #FEF2F2; color: #DC2626; }
-              .badge-healthy { background: #ECFDF5; color: #059669; }
+      .res-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      .badge-disease {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      .badge-healthy {
+        background: #ecfdf5;
+        color: #059669;
+      }
 
-              .disease-title { font-size: 20px; font-weight: 800; color: var(--text-head); margin-bottom: 4px; }
-              .res-desc { font-size: 13px; color: var(--text-body); line-height: 1.6; }
+      .disease-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-head);
+        margin-bottom: 4px;
+      }
+      .res-desc {
+        font-size: 13px;
+        color: var(--text-body);
+        line-height: 1.6;
+      }
 
-              .meta-grid {
-                  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-                  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light);
-              }
-              .meta-item { font-size: 11px; color: var(--text-body); font-weight: 600; text-transform: uppercase; }
-              .meta-val { display: block; font-size: 13px; font-weight: 700; color: var(--text-head); margin-top: 2px; }
+      .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-light);
+      }
+      .meta-item {
+        font-size: 11px;
+        color: var(--text-body);
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .meta-val {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-head);
+        margin-top: 2px;
+      }
 
-              .btn-view-report {
-                  width: 100%; padding: 12px; margin-top: 20px; border-radius: 10px;
-                  background: var(--bg-body); color: var(--text-head); font-weight: 600;
-                  border: none; cursor: pointer; transition: 0.2s; font-size: 13px;
-                  display: flex; justify-content: center; align-items: center; gap: 8px;
-              }
-              .btn-view-report:hover { background: #e5e7eb; }
+      .btn-view-report {
+        width: 100%;
+        padding: 12px;
+        margin-top: 20px;
+        border-radius: 10px;
+        background: var(--bg-body);
+        color: var(--text-head);
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 13px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-view-report:hover {
+        background: #e5e7eb;
+      }
 
-              @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-              /* ------------------------------------------------
+      /* ------------------------------------------------
                  4. RESPONSIVE MEDIA QUERIES (FIXED FOR MOBILE)
               ------------------------------------------------ */
 
-              /* Tablet & Mobile (<= 1024px) */
-              @media (max-width: 1024px) {
-                  .scan-grid { grid-template-columns: 1fr; }
-                  .right-panel { flex-direction: row; }
-                  .gps-card, .result-card { flex: 1; }
-              }
+      /* Tablet & Mobile (<= 1024px) */
+      @media (max-width: 1024px) {
+        .scan-grid {
+          grid-template-columns: 1fr;
+        }
+        .right-panel {
+          flex-direction: row;
+        }
+        .gps-card,
+        .result-card {
+          flex: 1;
+        }
+      }
 
-              /* Mobile Phone (<= 768px) */
-              @media (max-width: 768px) {
-                  /* Layout */
-                  body { flex-direction: column; height: auto; overflow-y:visible; }
-                  .main-content { padding: 20px; overflow: visible; }
+      /* Mobile Phone (<= 768px) */
+      @media (max-width: 768px) {
+        /* Layout */
+        body {
+          flex-direction: column;
+          height: auto;
+          overflow-y: visible;
+        }
+        .main-content {
+          padding: 20px;
+          overflow: visible;
+        }
 
+        /* Sidebar Drawer */
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 280px;
+          transform: translateX(-100%);
+          box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar.active {
+          transform: translateX(0);
+        }
+        .sidebar-overlay.active {
+          opacity: 1;
+          pointer-events: auto;
+        }
 
-                  /* Sidebar Drawer */
-                  .sidebar {
-                      position: fixed; top: 0; left: 0; height: 100%; width: 280px;
-                      transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                  }
-                  .sidebar.active { transform: translateX(0); }
-                  .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+        /* Header - Hiding Back/Date as requested */
+        .header {
+          align-items: flex-start;
+          margin-bottom: 24px;
+          position: relative;
+        }
+        .mobile-toggle {
+          display: block;
+          margin-top: 20px;
+        }
+        .back-link,
+        .date-badge {
+          display: none !important;
+        } /* Hidden on mobile */
 
-                  /* Header - Hiding Back/Date as requested */
-                  .header { align-items: flex-start; margin-bottom: 24px; position: relative; }
-                  .mobile-toggle { display: block; margin-top: 20px; }
-                  .back-link, .date-badge { display: none !important; } /* Hidden on mobile */
+        /* Typography */
+        .greeting h1 {
+          font-size: 22px;
+          margin-top: 4px;
+        }
+        .greeting p {
+          font-size: 14px;
+          max-width: 250px;
+        }
 
-                  /* Typography */
-                  .greeting h1 { font-size: 22px; margin-top: 4px; }
-                  .greeting p { font-size: 14px; max-width: 250px; }
+        /* Grid Stack */
+        .scan-grid {
+          gap: 24px;
+        }
+        .right-panel {
+          flex-direction: column;
+        }
 
-                  /* Grid Stack */
-                  .scan-grid { gap: 24px; }
-                  .right-panel { flex-direction: column; }
+        /* Component Adjustments */
+        .sensor-tabs {
+          overflow-x: auto;
+          flex-wrap: nowrap;
+          -webkit-overflow-scrolling: touch;
+        }
+        .sensor-tab {
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .upload-zone {
+          padding: 40px 20px;
+        }
+        .preview-container {
+          height: 300px;
+        }
+        .btn-analyze {
+          padding: 14px;
+        }
 
+        /* Result Card full width on mobile */
+        .result-card {
+          width: 100%;
+        }
 
-                  /* Component Adjustments */
-                  .sensor-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-                  .sensor-tab { white-space: nowrap; flex-shrink: 0; }
-                  .upload-zone { padding: 40px 20px; }
-                  .preview-container { height: 300px; }
-                  .btn-analyze { padding: 14px; }
+        /* Inner padding thoda balanced */
+        .result-card > div {
+          padding: 20px;
+        }
 
-
-
-
-                  /* Result Card full width on mobile */
-          .result-card {
-              width: 100%;
-          }
-
-          /* Inner padding thoda balanced */
-          .result-card > div {
-              padding: 20px;
-          }
-
-          /* View Full Report button FIX */
-          .btn-view-report {
-              width: 100%;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              font-size: 14px;
-              padding: 14px;
-              border-radius: 12px;
-              margin-top: 16px;
-          }
-
-           @media (max-width: 768px) {
-
-          /* STOP equal-height cards on mobile */
-          .gps-card,
-          .result-card {
-              flex: unset !important;
-              height: auto !important;
-          }
-
+        /* View Full Report button FIX */
+        .btn-view-report {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 14px;
+          padding: 14px;
+          border-radius: 12px;
+          margin-top: 16px;
+        }
       }
 
       @media (max-width: 768px) {
-
-          .result-card {
-              overflow: visible !important;
-          }
-
+        /* STOP equal-height cards on mobile */
+        .gps-card,
+        .result-card {
+          flex: unset !important;
+          height: auto !important;
+        }
       }
 
-      
+      @media (max-width: 768px) {
+        .result-card {
+          overflow: visible !important;
+        }
+      }
     </style>
   </head>
   <body>
@@ -421,15 +777,14 @@
             Premium User
           </div>
         </div>
-        
       </div>
     </aside>
 
     <main class="main-content">
       <header class="header">
         <button class="mobile-toggle" onclick="toggleSidebar()">
-  <i class="ph ph-list"></i>
-</button>
+          <i class="ph ph-list"></i>
+        </button>
 
         <div>
           <h1 class="greeting" style="margin-top: 12px">Crop Scan</h1>
@@ -482,7 +837,7 @@
               </p>
               <input
                 type="file"
-                id="imageSrc" 
+                id="imageSrc"
                 name="imageSrc"
                 hidden
                 accept="image"
@@ -568,430 +923,443 @@
                 </div>
               </div>
 
-             <button
-  class="btn-view-report"
-  id="viewReportBtn"
-  onclick="saveAndRedirect()"
-  disabled
->
-  View Full Report <i class="ph-bold ph-arrow-right"></i>
-</button>
-
+              <button
+                class="btn-view-report"
+                id="viewReportBtn"
+                onclick="saveAndRedirect()"
+                disabled
+              >
+                View Full Report <i class="ph-bold ph-arrow-right"></i>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </main>
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="toggleSidebar()"
+    ></div>
 
-
-   <script>
-    // --- STATE MANAGEMENT ---
-    let state = {
+    <script>
+      // --- STATE MANAGEMENT ---
+      let state = {
         imageSrc: null, // Base64 image
         lat: null,
         lng: null,
         region: "Unknown",
-        sensor: 'RGB Camera',
+        sensor: "RGB Camera",
         scanId: null,
         diseaseResult: null,
         confidenceVal: 0,
-        formattedCoords: "--.--, --.--"
-    };
+        formattedCoords: "--.--, --.--",
+      };
 
-    // --- 1. INITIALIZATION ---
-    window.onload = function() {
+      // --- 1. INITIALIZATION ---
+      window.onload = function () {
         initLocation();
-    };
+      };
 
-    // Helper to format coordinates (e.g. 12.92° N)
-    function formatCoord(value, type) {
+      // Helper to format coordinates (e.g. 12.92° N)
+      function formatCoord(value, type) {
         if (!value) return "--";
         const val = parseFloat(value);
-        const dir = type === 'lat' 
-            ? (val >= 0 ? 'N' : 'S') 
-            : (val >= 0 ? 'E' : 'W');
+        const dir =
+          type === "lat" ? (val >= 0 ? "N" : "S") : val >= 0 ? "E" : "W";
         return `${Math.abs(val).toFixed(2)}° ${dir}`;
-    }
+      }
 
-    function initLocation() {
+      function initLocation() {
         const els = {
-            region: document.getElementById('locRegion'),
-            coords: document.getElementById('locCoords'),
-            statusText: document.getElementById('gpsText'),
-            statusDot: document.querySelector('.pulse-dot')
+          region: document.getElementById("locRegion"),
+          coords: document.getElementById("locCoords"),
+          statusText: document.getElementById("gpsText"),
+          statusDot: document.querySelector(".pulse-dot"),
         };
 
         // 1. Try fetching Dashboard Data from LocalStorage
-        const dbCity = localStorage.getItem('cg_city');
-        const dbState = localStorage.getItem('cg_state');
-        const dbLat = localStorage.getItem('cg_lat');
-        const dbLng = localStorage.getItem('cg_lng');
+        const dbCity = localStorage.getItem("cg_city");
+        const dbState = localStorage.getItem("cg_state");
+        const dbLat = localStorage.getItem("cg_lat");
+        const dbLng = localStorage.getItem("cg_lng");
 
         if (dbCity && dbState && dbLat && dbLng) {
-            state.region = `${dbCity}, ${dbState}`;
-            state.lat = dbLat;
-            state.lng = dbLng;
-            state.formattedCoords = `${formatCoord(dbLat, 'lat')}, ${formatCoord(dbLng, 'lng')}`;
+          state.region = `${dbCity}, ${dbState}`;
+          state.lat = dbLat;
+          state.lng = dbLng;
+          state.formattedCoords = `${formatCoord(dbLat, "lat")}, ${formatCoord(
+            dbLng,
+            "lng"
+          )}`;
 
-            els.region.innerText = state.region;
-            els.coords.innerText = state.formattedCoords;
-            els.statusText.innerText = "Synced"; 
-            if(els.statusDot) els.statusDot.style.background = "#3B82F6"; 
-            return; 
+          els.region.innerText = state.region;
+          els.coords.innerText = state.formattedCoords;
+          els.statusText.innerText = "Synced";
+          if (els.statusDot) els.statusDot.style.background = "#3B82F6";
+          return;
         }
 
         // 2. Fallback: Run Live GPS
         if ("geolocation" in navigator) {
-            els.statusText.innerText = "Locating...";
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    state.lat = pos.coords.latitude;
-                    state.lng = pos.coords.longitude;
-                    state.region = "Detected Location"; 
-                    state.formattedCoords = `${formatCoord(state.lat, 'lat')}, ${formatCoord(state.lng, 'lng')}`;
-                    els.coords.innerText = state.formattedCoords;
-                    els.region.innerText = state.region;
-                    els.statusText.innerText = "Live GPS";
-                },
-                (err) => {
-                    console.warn("GPS Error", err);
-                    els.statusText.innerText = "No Signal";
-                }
-            );
+          els.statusText.innerText = "Locating...";
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              state.lat = pos.coords.latitude;
+              state.lng = pos.coords.longitude;
+              state.region = "Detected Location";
+              state.formattedCoords = `${formatCoord(
+                state.lat,
+                "lat"
+              )}, ${formatCoord(state.lng, "lng")}`;
+              els.coords.innerText = state.formattedCoords;
+              els.region.innerText = state.region;
+              els.statusText.innerText = "Live GPS";
+            },
+            (err) => {
+              console.warn("GPS Error", err);
+              els.statusText.innerText = "No Signal";
+            }
+          );
         } else {
-            els.statusText.innerText = "Unsupported";
+          els.statusText.innerText = "Unsupported";
         }
-    }
+      }
 
-    // --- 2. SENSOR SELECTION ---
-    function selectSensor(type) {
-        document.querySelectorAll('.sensor-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('sensor-' + type).classList.add('active');
-        
-        const map = { 'rgb': 'RGB Camera', 'thermal': 'Thermal', 'ndvi': 'NDVI' };
-        state.sensor = map[type] || 'RGB Camera';
-    }
+      // --- 2. SENSOR SELECTION ---
+      function selectSensor(type) {
+        document
+          .querySelectorAll(".sensor-tab")
+          .forEach((t) => t.classList.remove("active"));
+        document.getElementById("sensor-" + type).classList.add("active");
 
-    // --- 3. MOCK AI VALIDATION ---
-    /**
-     * Mock function to simulate server-side or local ML model checking if image is a coconut tree.
-     * Logic: Uses filename keywords for deterministic testing, else falls back to random probability.
-     */
-    async function validateCoconutImage(file) {
+        const map = { rgb: "RGB Camera", thermal: "Thermal", ndvi: "NDVI" };
+        state.sensor = map[type] || "RGB Camera";
+      }
+
+      // --- 3. MOCK AI VALIDATION ---
+      /**
+       * Mock function to simulate server-side or local ML model checking if image is a coconut tree.
+       * Logic: Uses filename keywords for deterministic testing, else falls back to random probability.
+       */
+      async function validateCoconutImage(file) {
         return new Promise((resolve) => {
-            // Simulate processing delay
-            setTimeout(() => {
-                const name = file.name.toLowerCase();
-                const validKeywords = ['coconut', 'palm', 'leaf', 'tree', 'crown', 'trunk', 'fruit', 'scan', 'img'];
-                const invalidKeywords = ['car', 'cat', 'dog', 'person', 'building', 'selfie'];
+          // Simulate processing delay
+          setTimeout(() => {
+            const name = file.name.toLowerCase();
+            const validKeywords = [
+              "coconut",
+              "palm",
+              "leaf",
+              "tree",
+              "crown",
+              "trunk",
+              "fruit",
+              "scan",
+              "img",
+            ];
+            const invalidKeywords = [
+              "car",
+              "cat",
+              "dog",
+              "person",
+              "building",
+              "selfie",
+            ];
 
-                let confidence = 0.5; // Default ambiguous
+            let confidence = 0.5; // Default ambiguous
 
-                // 1. Check for "obvious" valid keywords (Mocking High Confidence)
-                if (validKeywords.some(k => name.includes(k))) {
-                    confidence = 0.85 + (Math.random() * 0.14); // 0.85 - 0.99
-                }
-                // 2. Check for "obvious" invalid keywords (Mocking Low Confidence)
-                else if (invalidKeywords.some(k => name.includes(k))) {
-                    confidence = 0.1 + (Math.random() * 0.2); // 0.1 - 0.3
-                }
-                // 3. Random fallback
-                else {
-                    confidence = Math.random(); 
-                }
+            // 1. Check for "obvious" valid keywords (Mocking High Confidence)
+            if (validKeywords.some((k) => name.includes(k))) {
+              confidence = 0.85 + Math.random() * 0.14; // 0.85 - 0.99
+            }
+            // 2. Check for "obvious" invalid keywords (Mocking Low Confidence)
+            else if (invalidKeywords.some((k) => name.includes(k))) {
+              confidence = 0.1 + Math.random() * 0.2; // 0.1 - 0.3
+            }
+            // 3. Random fallback
+            else {
+              confidence = Math.random();
+            }
 
-                // Threshold check (e.g., must be > 65% confident it's a coconut tree)
-                const isValid = confidence > 0.65;
-                resolve({ isValid, confidence });
-            }, 800);
+            // Threshold check (e.g., must be > 65% confident it's a coconut tree)
+            const isValid = confidence > 0.65;
+            resolve({ isValid, confidence });
+          }, 800);
         });
-    }
+      }
 
-    // --- 4. ERROR UI HANDLING ---
-    function renderError(msg) {
+      // --- 4. ERROR UI HANDLING ---
+      function renderError(msg) {
         // Look for existing error box or create one dynamically
-        let errBox = document.getElementById('js-validation-error');
-        const uploadZone = document.getElementById('uploadZone');
+        let errBox = document.getElementById("js-validation-error");
+        const uploadZone = document.getElementById("uploadZone");
 
         if (!errBox) {
-            errBox = document.createElement('div');
-            errBox.id = 'js-validation-error';
-            // Styling to match theme (Warning Red)
-            errBox.style.marginTop = '16px';
-            errBox.style.padding = '12px';
-            errBox.style.background = '#FEF2F2';
-            errBox.style.border = '1px solid #FECACA';
-            errBox.style.borderRadius = '12px';
-            errBox.style.color = '#B91C1C';
-            errBox.style.fontSize = '13px';
-            errBox.style.fontWeight = '600';
-            errBox.style.display = 'flex';
-            errBox.style.alignItems = 'center';
-            errBox.style.gap = '8px';
-            errBox.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:18px;"></i> <span></span>';
-            
-            // Insert inside upload zone at the bottom
-            uploadZone.appendChild(errBox);
+          errBox = document.createElement("div");
+          errBox.id = "js-validation-error";
+          // Styling to match theme (Warning Red)
+          errBox.style.marginTop = "16px";
+          errBox.style.padding = "12px";
+          errBox.style.background = "#FEF2F2";
+          errBox.style.border = "1px solid #FECACA";
+          errBox.style.borderRadius = "12px";
+          errBox.style.color = "#B91C1C";
+          errBox.style.fontSize = "13px";
+          errBox.style.fontWeight = "600";
+          errBox.style.display = "flex";
+          errBox.style.alignItems = "center";
+          errBox.style.gap = "8px";
+          errBox.innerHTML =
+            '<i class="ph-bold ph-warning-circle" style="font-size:18px;"></i> <span></span>';
+
+          // Insert inside upload zone at the bottom
+          uploadZone.appendChild(errBox);
         }
 
-        errBox.querySelector('span').innerText = msg;
-        errBox.style.display = 'flex';
-        
+        errBox.querySelector("span").innerText = msg;
+        errBox.style.display = "flex";
+
         // Shake animation for visibility
-        uploadZone.animate([
-            { transform: 'translateX(0)' },
-            { transform: 'translateX(-4px)' },
-            { transform: 'translateX(4px)' },
-            { transform: 'translateX(0)' }
-        ], { duration: 300 });
-    }
+        uploadZone.animate(
+          [
+            { transform: "translateX(0)" },
+            { transform: "translateX(-4px)" },
+            { transform: "translateX(4px)" },
+            { transform: "translateX(0)" },
+          ],
+          { duration: 300 }
+        );
+      }
 
-    function clearError() {
-        const errBox = document.getElementById('js-validation-error');
-        if (errBox) errBox.style.display = 'none';
-    }
+      function clearError() {
+        const errBox = document.getElementById("js-validation-error");
+        if (errBox) errBox.style.display = "none";
+      }
 
-    // --- 5. FILE HANDLING ---
-    async function handleFile(e) {
+      // --- 5. FILE HANDLING ---
+      async function handleFile(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         // A. File Type Validation
-        if (!file.type.match('image.*')) {
-            renderError("Invalid file type. Please upload a JPG or PNG image.");
-            e.target.value = ''; // Reset input
-            return;
+        if (!file.type.match("image.*")) {
+          renderError("Invalid file type. Please upload a JPG or PNG image.");
+          e.target.value = ""; // Reset input
+          return;
         }
 
         clearError();
 
         // UI: Show loading state text
-        const titleEl = document.querySelector('.upload-title');
+        const titleEl = document.querySelector(".upload-title");
         const originalTitle = titleEl.innerText;
         titleEl.innerText = "Verifying Image Content...";
         titleEl.style.color = "#3B82F6"; // Blue for processing
 
         // B. Coconut Content Validation
         try {
-            const validation = await validateCoconutImage(file);
+          const validation = await validateCoconutImage(file);
 
-            if (!validation.isValid) {
-                // REJECT
-                renderError("Invalid Image. Please upload a coconut tree part (leaf, trunk, fruit).");
-                titleEl.innerText = originalTitle;
-                titleEl.style.color = ""; 
-                e.target.value = ''; // Reset input
-                return;
-            }
-
-            // C. Success - Load Preview
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                state.imageSrc = evt.target.result;
-                document.getElementById('previewImg').src = state.imageSrc;
-                
-                // Toggle UI
-                document.getElementById('uploadZone').style.display = 'none';
-                document.getElementById('previewContainer').style.display = 'block';
-                document.getElementById('analyzeBtn').disabled = false;
-                document.getElementById('resultCard').style.display = 'none';
-                document.getElementById('viewReportBtn').disabled = true;
-
-                // Reset Text
-                titleEl.innerText = originalTitle;
-                titleEl.style.color = ""; 
-            };
-            reader.readAsDataURL(file);
-
-        } catch (err) {
-            console.error("Validation Error", err);
-            renderError("Unable to validate image. Please try again.");
+          if (!validation.isValid) {
+            // REJECT
+            renderError(
+              "Invalid Image. Please upload a coconut tree part (leaf, trunk, fruit)."
+            );
             titleEl.innerText = originalTitle;
             titleEl.style.color = "";
-        }
-    }
+            e.target.value = ""; // Reset input
+            return;
+          }
 
-    function resetScan() {
-        document.getElementById('fileInput').value = '';
-        document.getElementById('uploadZone').style.display = 'block';
-        document.getElementById('previewContainer').style.display = 'none';
-        document.getElementById('analyzeBtn').disabled = true;
-        document.getElementById('resultCard').style.display = 'none';
+          // C. Success - Load Preview
+          const reader = new FileReader();
+          reader.onload = function (evt) {
+            state.imageSrc = evt.target.result;
+            document.getElementById("previewImg").src = state.imageSrc;
+
+            // Toggle UI
+            document.getElementById("uploadZone").style.display = "none";
+            document.getElementById("previewContainer").style.display = "block";
+            document.getElementById("analyzeBtn").disabled = false;
+            document.getElementById("resultCard").style.display = "none";
+            document.getElementById("viewReportBtn").disabled = true;
+
+            // Reset Text
+            titleEl.innerText = originalTitle;
+            titleEl.style.color = "";
+          };
+          reader.readAsDataURL(file);
+        } catch (err) {
+          console.error("Validation Error", err);
+          renderError("Unable to validate image. Please try again.");
+          titleEl.innerText = originalTitle;
+          titleEl.style.color = "";
+        }
+      }
+
+      function resetScan() {
+        document.getElementById("imageSrc").value = "";
+        document.getElementById("uploadZone").style.display = "block";
+        document.getElementById("previewContainer").style.display = "none";
+        document.getElementById("analyzeBtn").disabled = true;
+        document.getElementById("resultCard").style.display = "none";
         state.imageSrc = null;
         clearError();
-    }
+      }
 
-// ========================================================
-// ✅ Backend API URL (Render)
-// ========================================================
+      // ========================================================
+      // ✅ 6. DIRECT BACKEND ANALYSIS (UPDATED)
+      // ========================================================
+      async function runAnalysis() {
+        // 1. Image check
+        if (!state.imageSrc) {
+          alert("Please upload an image first");
+          return;
+        }
 
-async function runAnalysis() {
-  // 1. Image check
-  if (!state.imageSrc) {
-    alert("Please upload an image first");
-    return;
-  }
+        const btn = document.getElementById("analyzeBtn");
+        const originalText = btn.innerHTML;
 
-  const btn = document.getElementById("analyzeBtn");
-  const originalText = btn.innerHTML;
+        // UI loading state
+        btn.innerHTML =
+          '<i class="ph-bold ph-spinner ph-spin"></i> Analyzing...';
+        btn.disabled = true;
 
-  // UI loading state
-  btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Analyzing...';
-  btn.disabled = true;
+        // Check for long wait (Server waking up)
+        const waitTimer = setTimeout(() => {
+          btn.innerHTML =
+            '<i class="ph-bold ph-spinner ph-spin"></i> Waking up server...';
+        }, 5000);
 
-  try {
-   const response = await fetch("/api/predict", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    imageSrc: state.imageSrc.split(",")[1]
-  })
-});
+        try {
+          // 👇 DIRECT CALL TO RENDER (No Vercel Proxy)
+          const response = await fetch(
+            "https://ml-model-backend-rczq.onrender.com/api/predict",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              // 👇 Send exact JSON structure backend needs
+              body: JSON.stringify({
+                imageSrc: state.imageSrc.split(",")[1], // Strip "data:image..." header
+              }),
+            }
+          );
 
+          clearTimeout(waitTimer);
 
-    if (!response.ok) {
-      throw new Error("Backend error");
-    }
+          if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Server Error: ${response.status} - ${errText}`);
+          }
 
-    const result = await response.json();
-    // Expected: { disease: "Leaf Rot", confidence: 92.3 }
+          const result = await response.json();
 
-    // -------------------------------
-    // 4. UPDATE UI (NO DUPLICATES)
-    // -------------------------------
+          // -------------------------------
+          // 4. UPDATE UI
+          // -------------------------------
 
-    // Disease title
-    document.getElementById("resTitle").innerText = result.disease;
+          // Disease title
+          document.getElementById("resTitle").innerText = result.disease;
 
-    // Confidence text
-    document.getElementById("resDesc").innerText =
-      `AI Confidence: ${result.confidence}%. Detected via ${state.sensor}.`;
+          // Confidence text
+          document.getElementById(
+            "resDesc"
+          ).innerText = `AI Confidence: ${result.confidence}%. Detected via ${state.sensor}.`;
 
-    // Decide status on frontend
-    const status = result.disease.toLowerCase().includes("healthy")
-      ? "Healthy"
-      : "Diseased";
+          // Decide status on frontend
+          const status = result.disease.toLowerCase().includes("healthy")
+            ? "Healthy"
+            : "Diseased";
 
-    // Badge
-    const badge = document.getElementById("resBadge");
-    badge.innerText = status.toUpperCase();
+          // Badge
+          const badge = document.getElementById("resBadge");
+          badge.innerText = status.toUpperCase();
 
-    if (status === "Healthy") {
-      badge.className = "res-badge badge-healthy";
-      document.getElementById("resultCard").className =
-        "card result-card border-healthy";
-    } else {
-      badge.className = "res-badge badge-disease";
-      document.getElementById("resultCard").className =
-        "card result-card border-disease";
-    }
+          if (status === "Healthy") {
+            badge.className = "res-badge badge-healthy";
+            document.getElementById("resultCard").className =
+              "card result-card border-healthy";
+          } else {
+            badge.className = "res-badge badge-disease";
+            document.getElementById("resultCard").className =
+              "card result-card border-disease";
+          }
 
-    // Metadata
-    state.diseaseResult = result.disease;
-    state.confidenceVal = result.confidence;
-    state.scanId = "SCN-" + Math.floor(Math.random() * 10000);
+          // Metadata
+          state.diseaseResult = result.disease;
+          state.confidenceVal = result.confidence;
+          state.scanId = "SCN-" + Math.floor(Math.random() * 10000);
 
-    document.getElementById("resId").innerText = state.scanId;
-    document.getElementById("resImpact").innerText =
-      status === "Healthy" ? "Low" : "High";
+          document.getElementById("resId").innerText = state.scanId;
+          document.getElementById("resImpact").innerText =
+            status === "Healthy" ? "Low" : "High";
 
-    // Show result card
-    document.getElementById("resultCard").style.display = "block";
-    document.getElementById("viewReportBtn").disabled = false;
+          // Show result card
+          document.getElementById("resultCard").style.display = "block";
+          document.getElementById("viewReportBtn").disabled = false;
 
-    // Scroll for mobile
-    document
-      .getElementById("resultCard")
-      .scrollIntoView({ behavior: "smooth" });
+          // Scroll for mobile
+          document
+            .getElementById("resultCard")
+            .scrollIntoView({ behavior: "smooth" });
+        } catch (err) {
+          console.error(err);
+          clearTimeout(waitTimer);
 
-  } catch (err) {
-    console.error(err);
-    alert("Error: Could not connect to backend API.");
-  } finally {
-    // Reset button
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-  }
-}
+          // Helpful Error Handling
+          if (err.message.includes("Failed to fetch")) {
+            alert(
+              "Connection Failed. \n\n1. Ensure your Render backend is running. \n2. Ensure CORS is enabled on your backend."
+            );
+          } else {
+            alert("Analysis Failed: " + err.message);
+          }
+        } finally {
+          // Reset button
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      }
 
-    // --- 7. SAVE & REDIRECT ---
-    function saveAndRedirect() {
+      // --- 7. SAVE & REDIRECT ---
+      function saveAndRedirect() {
         if (!state.scanId) return;
 
         const scanReport = {
-            id: state.scanId,
-            disease: state.diseaseResult,
-            status: state.diseaseResult === "Healthy" ? "Healthy" : "Diseased",
-            confidence: state.confidenceVal,
-            image: state.imageSrc,
-            location: state.region,
-            coords: state.formattedCoords,
-            sensor: state.sensor,
-            timestamp: Date.now()
+          id: state.scanId,
+          disease: state.diseaseResult,
+          status: state.diseaseResult === "Healthy" ? "Healthy" : "Diseased",
+          confidence: state.confidenceVal,
+          image: state.imageSrc,
+          location: state.region,
+          coords: state.formattedCoords,
+          sensor: state.sensor,
+          timestamp: Date.now(),
         };
 
-        const STORAGE_KEY = 'cg_scan_history';
+        const STORAGE_KEY = "cg_scan_history";
         let history = [];
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) history = JSON.parse(raw);
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) history = JSON.parse(raw);
         } catch (e) {
-            console.error("Storage error", e);
-            history = [];
+          console.error("Storage error", e);
+          history = [];
         }
 
         history.unshift(scanReport);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 
-        window.location.href = 'reports.html?latest=true';
-    }
+        window.location.href = "reports.html?latest=true";
+      }
 
-    function toggleSidebar() {
-        document.querySelector('.sidebar').classList.toggle('active');
-        document.getElementById('sidebarOverlay').classList.toggle('active');
-    }
-</script>
-    
-</body>
-
+      function toggleSidebar() {
+        document.querySelector(".sidebar").classList.toggle("active");
+        document.getElementById("sidebarOverlay").classList.toggle("active");
+      }
+    </script>
+  </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
