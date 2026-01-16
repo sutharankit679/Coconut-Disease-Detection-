@@ -482,7 +482,8 @@
               </p>
               <input
                 type="file"
-                id="fileInput"
+                id="imageSrc" 
+                name="imageSrc"
                 hidden
                 accept="image"
                 onchange="handleFile(event)"
@@ -502,7 +503,7 @@
                 <button
                   class="btn-icon-soft"
                   title="Change"
-                  onclick="document.getElementById('fileInput').click()"
+                  onclick="document.getElementById('imageSrc').click()"
                 >
                   <i class="ph-bold ph-image"></i>
                 </button>
@@ -957,6 +958,7 @@ async function runAnalysis() {
 </body>
 
 </html>
+
 
 
 
